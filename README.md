@@ -38,6 +38,21 @@ python main.py
 
 Run as Administrator for full functionality — service management, SFC/DISM, restore points, and some registry tweaks require elevated privileges and will tell you clearly if they're missing.
 
+### Building a standalone .exe
+
+```bash
+pip install -r requirements-dev.txt
+pyinstaller faster_pc.spec
+```
+
+Or just double-click `build_exe.bat` on Windows — it installs PyInstaller if needed and builds `dist/FasterPC.exe`.
+
+Notes:
+- The exe requests admin elevation automatically on launch (`uac_admin=True` in `faster_pc.spec`), since most features need it anyway.
+- `config.json` and the log file are written **next to the exe**, not inside PyInstaller's temporary extraction folder — so your settings and accounts persist across runs. This is handled by `src/utils/paths.py`.
+- Bundled read-only resources (`styles.qss`, `docs.html`, the icon) are listed in `faster_pc.spec`'s `datas` — if you add a new bundled file, add it there too.
+- Some antivirus engines flag freshly-built, unsigned PyInstaller executables as suspicious purely because of *how* PyInstaller packages Python (this is a common false positive for any unsigned PyInstaller app, not specific to this project). Code-signing the exe with a real certificate is the proper fix if you plan to distribute it beyond your own machine.
+
 ### Project structure
 
 ```
@@ -53,10 +68,14 @@ src/
   utils/auth.py           AuthManager — local PBKDF2-HMAC-SHA256 accounts
   utils/logger.py         Thread-safe UI log handler + rotating file log
   utils/workers.py        TaskWorker — QThread wrapper so the UI never blocks
+  utils/paths.py          resource_path()/writable_path() — correct paths in source vs. frozen exe
 docs/docs.html            Bilingual user + developer documentation
 assets/                   App icon (icon.ico, PNGs)
 main.py                   Entry point
 config.json                Persisted settings, accounts, feature flags
+faster_pc.spec            PyInstaller build spec (icon, bundled data, UAC elevation)
+build_exe.bat             One-click Windows build script
+requirements-dev.txt      Build-only dependencies (PyInstaller)
 ```
 
 ### A note on scope
@@ -96,6 +115,21 @@ python main.py
 ```
 
 شغّله كـ Administrator للوظائف الكاملة — إدارة الخدمات، SFC/DISM، نقاط الاستعادة، وبعض تعديلات الريجستري تحتاج صلاحيات مرتفعة وبتقولك بوضوح لو ناقصة.
+
+### تحويله لملف exe مستقل
+
+```bash
+pip install -r requirements-dev.txt
+pyinstaller faster_pc.spec
+```
+
+أو دبل-كلك على `build_exe.bat` بويندوز مباشرة — يثبّت PyInstaller لو ناقص ويبني `dist\FasterPC.exe`.
+
+ملاحظات:
+- ملف الـ exe يطلب صلاحيات مدير تلقائيًا عند التشغيل (`uac_admin=True` بملف `faster_pc.spec`)، لأن أغلب الميزات تحتاجها أصلاً.
+- `config.json` وملف السجل يُكتبان **بجانب ملف الـ exe نفسه**، مو داخل مجلد الاستخراج المؤقت لـ PyInstaller — عشان إعداداتك وحساباتك تبقى محفوظة بين مرات التشغيل. هذا مضبوط عبر `src/utils/paths.py`.
+- الموارد المُشحونة للقراءة فقط (`styles.qss`, `docs.html`, الأيقونة) مدرجة بقسم `datas` بملف `faster_pc.spec` — لو ضفت ملف مُشحون جديد، ضيفه هناك كمان.
+- بعض برامج مكافحة الفيروسات تصنّف ملفات PyInstaller الطازجة غير الموقّعة (unsigned) كمشبوهة لمجرد طريقة تغليف PyInstaller نفسها (نتيجة إيجابية خاطئة شائعة لأي تطبيق PyInstaller غير موقّع، مو خاص بهذا المشروع). توقيع الملف بشهادة حقيقية (code signing) هو الحل الصحيح لو رح توزّعه خارج جهازك.
 
 ### ملاحظة عن نطاق المشروع
 
