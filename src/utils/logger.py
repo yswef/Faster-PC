@@ -3,6 +3,8 @@ import os
 from logging.handlers import RotatingFileHandler
 from PySide6.QtCore import QObject, Signal
 
+from src.utils.paths import writable_path
+
 LOG_COLORS = {
     "DEBUG": "#888888",
     "INFO": "#dddddd",
@@ -47,12 +49,13 @@ class UILogHandler(logging.Handler):
         self.text_edit.append(f'<span style="color:{color}">{safe_msg}</span>')
 
 
-def setup_file_logging(log_dir="logs", filename="faster_pc.log"):
+def setup_file_logging(log_dir=None, filename="faster_pc.log"):
     """
     يفعّل سجل ملفات دوّار (rotating) للاحتفاظ بسجل تشخيصي دائم على القرص —
     مفيد لتتبع أي مشكلة صارت بجلسة سابقة، ويساعد بالدعم الفني بدون ما يحتاج
     المستخدم يعيد إنتاج المشكلة.
     """
+    log_dir = log_dir or writable_path("logs")
     try:
         os.makedirs(log_dir, exist_ok=True)
         handler = RotatingFileHandler(
