@@ -4,6 +4,8 @@ import shutil
 import logging
 import tempfile
 
+from src.utils.paths import writable_path
+
 logger = logging.getLogger(__name__)
 
 
@@ -15,8 +17,10 @@ class SettingsManager:
     - دمج الإعدادات الجديدة مع القديمة بدل الاستبدال الكامل (save يدعم partial update).
     """
 
-    def __init__(self, config_path="config.json"):
-        self.config_path = config_path
+    def __init__(self, config_path=None):
+        # افتراضيًا بجانب ملف الـ exe نفسه (مو داخل مجلد الاستخراج المؤقت
+        # لـ PyInstaller)، عشان الإعدادات تبقى محفوظة بين مرات التشغيل.
+        self.config_path = config_path or writable_path("config.json")
         self.defaults = {
             "process_exclusions": [
                 "system", "csrss.exe", "wininit.exe", "services.exe", "lsass.exe",
