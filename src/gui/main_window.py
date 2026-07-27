@@ -1,6 +1,7 @@
 import sys
 import os
 import logging
+import webbrowser
 
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
@@ -18,6 +19,7 @@ from src.core.repair import SystemRepair, is_admin
 from src.core.tweaks import PerformanceTweaks
 from src.utils.logger import UILogHandler, setup_file_logging
 from src.utils.workers import TaskWorker
+from src.utils.paths import resource_path
 from src.gui.settings_window import SettingsWindow
 from src.gui.login_window import LoginWindow
 
@@ -90,6 +92,9 @@ class MainWindow(QMainWindow):
         self.btn_settings = QPushButton("⚙️ الإعدادات")
         self.btn_settings.clicked.connect(self.open_settings)
         bottom.addWidget(self.btn_settings)
+        self.btn_docs = QPushButton("📖 التوثيق")
+        self.btn_docs.clicked.connect(self.open_docs)
+        bottom.addWidget(self.btn_docs)
         bottom.addStretch()
         root.addLayout(bottom)
 
@@ -106,7 +111,7 @@ class MainWindow(QMainWindow):
         logging.info(f"Session started as '{self.current_user['username']}' ({self.current_user['role']}).")
 
     def _apply_stylesheet(self):
-        style_path = os.path.join(os.path.dirname(__file__), "styles.qss")
+        style_path = resource_path("src/gui/styles.qss")
         try:
             with open(style_path, "r", encoding="utf-8") as f:
                 QApplication.instance().setStyleSheet(f.read())
@@ -498,6 +503,14 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------
     def open_settings(self):
         SettingsWindow(self.settings, current_user=self.current_user).exec()
+
+    def open_docs(self):
+        docs_path = resource_path("docs/docs.html")
+        try:
+            webbrowser.open(f"file://{docs_path}")
+        except Exception as e:
+            logger.warning(f"Could not open docs: {e}")
+            QMessageBox.information(self, "التوثيق", f"افتح هذا الملف يدويًا:\n{docs_path}")
 
     def logout(self):
         self.logged_out = True
