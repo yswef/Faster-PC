@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faster PC — Documentation</title>
+<style>
+  :root {
+    --bg: #16171d;
+    --panel: #1e1f26;
+    --panel-2: #24262f;
+    --border: #2e303c;
+    --text: #e6e6e6;
+    --muted: #9a9dab;
+    --accent: #4a90e2;
+    --accent-2: #27ae60;
+    --warn: #f0ad4e;
+    --danger: #e74c3c;
+    --mono: "Consolas", "SFMono-Regular", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: "Segoe UI", Tahoma, Arial, sans-serif; line-height: 1.75; }
+  header {
+    position: sticky; top: 0; z-index: 10; background: var(--panel);
+    border-bottom: 1px solid var(--border); padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  }
+  header h1 { font-size: 18px; margin: 0; }
+  header h1 span { color: var(--accent-2); }
+  .controls { display: flex; gap: 8px; }
+  button {
+    background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; padding: 8px 14px; cursor: pointer; font-size: 13px;
+  }
+  button:hover { border-color: var(--accent); }
+  button.active { background: var(--accent); border-color: var(--accent); }
+  main { max-width: 920px; margin: 0 auto; padding: 32px 24px 80px; }
+  nav.toc { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+  nav.toc a {
+    color: var(--muted); text-decoration: none; font-size: 13px;
+    border: 1px solid var(--border); padding: 6px 12px; border-radius: 999px;
+  }
+  nav.toc a:hover { color: var(--text); border-color: var(--accent); }
+  section { margin-bottom: 42px; }
+  h2 { font-size: 22px; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 16px; }
+  h3 { color: var(--accent); font-size: 16px; margin-top: 26px; }
+  p, li { color: var(--text); font-size: 14.5px; }
+  .muted { color: var(--muted); font-size: 13px; }
+  code, pre { font-family: var(--mono); background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; }
+  code { padding: 2px 6px; font-size: 13px; }
+  pre { padding: 14px; overflow-x: auto; font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  th { text-align: start; padding: 8px 4px; border-bottom: 1px solid var(--border); }
+  td { padding: 8px 4px; border-bottom: 1px solid var(--border); }
+  .warn-box {
+    background: rgba(240,173,78,0.1); border: 1px solid var(--warn); border-radius: 8px;
+    padding: 14px 16px; font-size: 13.5px; margin: 14px 0;
+  }
+  .danger-box {
+    background: rgba(231,76,60,0.1); border: 1px solid var(--danger); border-radius: 8px;
+    padding: 14px 16px; font-size: 13.5px; margin: 14px 0;
+  }
+  .docs-toggle { display: flex; gap: 8px; margin-bottom: 24px; }
+  #userDocs, #devDocs { display: none; }
+  #userDocs.visible, #devDocs.visible { display: block; }
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 24px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Faster <span>PC</span> — <span id="hdrDocsLabel">التوثيق</span></h1>
+  <div class="controls">
+    <button id="langAr" class="active" onclick="setLang('ar')">العربية</button>
+    <button id="langEn" onclick="setLang('en')">English</button>
+  </div>
+</header>
+
+<main>
+  <div class="docs-toggle">
+    <button id="tabUser" class="active" onclick="showDocs('user')" data-ar="توثيق المستخدم" data-en="User Docs"></button>
+    <button id="tabDev" onclick="showDocs('dev')" data-ar="توثيق المطورين" data-en="Developer Docs"></button>
+  </div>
+
+  <!-- ===================== USER DOCS ===================== -->
+  <section id="userDocs" class="visible">
+    <h2 data-ar="ما هو Faster PC؟" data-en="What is Faster PC?"></h2>
+    <p data-ar="أداة صيانة وتسريع لنظام ويندوز: تنظيف ملفات مؤقتة، إدارة عمليات وخدمات، تعطيل برامج بدء التشغيل، تحسينات أداء حقيقية (خطة الطاقة، المؤثرات البصرية، تطبيقات الخلفية)، وإصلاح ملفات النظام. كل عملية مسجّلة وقابلة للمعاينة قبل التنفيذ عبر الوضع التجريبي."
+       data-en="A Windows maintenance and speed-up tool: cleans temp files, manages processes and services, disables startup programs, applies real performance tweaks (power plan, visual effects, background apps), and repairs system files. Every action is logged and can be previewed first via Test Mode."></p>
+
+    <h3 data-ar="الحسابات" data-en="Accounts"></h3>
+    <p data-ar="عند أول تشغيل تنشئ حساب مدير (Admin). يقدر المدير إضافة حسابات أخرى من الإعدادات. كل الحسابات (مدير أو مستخدم) تشوف كل الميزات حاليًا — تعدد المستخدمين هنا لتتبّع من نفّذ كل عملية بالسجل، وتحضيرًا لإصدار مستقبلي يقدر يقيّد ميزات معيّنة."
+       data-en="On first launch you create an Admin account. The admin can add more accounts from Settings. Every account (admin or user) currently sees all features — multi-user support exists to attribute logged actions and to prepare for a future release that can restrict certain features."></p>
+
+    <h3 data-ar="اللوحة الرئيسية" data-en="Dashboard"></h3>
+    <p data-ar="عرض مباشر لاستهلاك المعالج والذاكرة والقرص يتحدث كل ثانيتين، مع زر 'تطبيق حزمة التسريع الموصى بها' يشغّل خطة الأداء العالي، يضبط المؤثرات البصرية، ويعطّل تطبيقات الخلفية دفعة واحدة."
+       data-en="A live CPU/RAM/disk usage view refreshing every 2 seconds, plus a one-click 'Apply recommended speed-up bundle' button that sets the high-performance power plan, tunes visual effects, and disables background apps in one go."></p>
+
+    <h3 data-ar="التنظيف" data-en="Cleaning"></h3>
+    <ul>
+      <li data-ar="حذف الملفات المؤقتة (ويندوز و/أو الشخصية)." data-en="Delete temporary files (Windows and/or personal)."></li>
+      <li data-ar="إفراغ سلة المحذوفات." data-en="Empty the Recycle Bin."></li>
+      <li data-ar="حذف ذاكرة تحديثات ويندوز القديمة." data-en="Clear old Windows Update cache."></li>
+    </ul>
+
+    <h3 data-ar="التحسين — إنهاء العمليات" data-en="Optimize — Process Control"></h3>
+    <div class="danger-box">
+      <strong data-ar="⚠ إنهاء كل العمليات غير المستثناة" data-en="⚠ Terminate all non-excluded processes"></strong><br>
+      <span data-ar="هذا الزر ينهي كل عملية جارية على جهازك عدا القائمة اللي تحددها بـ 'عمليات مستثناة من الإنهاء الجماعي' بالإعدادات. مجموعة صغيرة جدًا من عمليات إقلاع ويندوز الحرجة (csrss.exe, lsass.exe, wininit.exe...) محمية دائمًا لأن إنهاءها يسبب توقف النظام فورًا — هذا ليس قيدًا اختياريًا، هذا كيف يعمل ويندوز. أي شيء آخر (متصفحات، svchost، حتى explorer.exe) قابل للإنهاء بالكامل."
+            data-en="This button terminates every running process except whatever you list under 'Processes excluded from bulk termination' in Settings. A very small set of Windows boot-critical processes (csrss.exe, lsass.exe, wininit.exe...) is always protected because terminating them crashes the system instantly — that isn't an optional restriction, it's simply how Windows works. Everything else (browsers, svchost, even explorer.exe) can be terminated."></span>
+    </div>
+    <p data-ar="راجع دائمًا قائمة 'عمليات مستثناة من الإنهاء الجماعي' بالإعدادات قبل استخدام هذا الزر، وتأكد من حفظ عملك بالبرامج المفتوحة."
+       data-en="Always review the exclusion list in Settings before using this button, and save your work in open programs first."></p>
+
+    <h3 data-ar="الخدمات" data-en="Services"></h3>
+    <p data-ar="قائمة خدمات ويندوز الشائعة (SysMain, WSearch, DiagTrack...) مع وصف مختصر لكل وحدة، وإمكانية إيقافها/تشغيلها. الخدمات المدرجة بـ 'خدمات مستثناة' بالإعدادات (WinDefend, EventLog افتراضيًا) محمية من التعديل."
+       data-en="A list of common Windows services (SysMain, WSearch, DiagTrack...) with a short description of each, and the ability to stop/start them. Services listed under 'excluded services' in Settings (WinDefend, EventLog by default) are protected from changes."></p>
+
+    <h3 data-ar="بدء التشغيل" data-en="Startup"></h3>
+    <p data-ar="تعطيل أي برنامج بدء تشغيل بأمان (يعاد تسميته بدل حذفه، فتقدر ترجعه بسهولة) لتسريع الإقلاع."
+       data-en="Safely disable any startup program (renamed rather than deleted, so it's easy to restore) to speed up boot time."></p>
+
+    <h3 data-ar="تسريع النظام" data-en="System Tweaks"></h3>
+    <table>
+      <tr><th data-ar="التحسين" data-en="Tweak"></th><th data-ar="التأثير" data-en="Effect"></th></tr>
+      <tr><td data-ar="خطة الأداء العالي" data-en="High Performance power plan"></td><td data-ar="يمنع خفض تردد المعالج للتوفير" data-en="Prevents CPU throttling for power saving"></td></tr>
+      <tr><td data-ar="خطة الأداء المطلق" data-en="Ultimate Performance plan"></td><td data-ar="خطة مخفية بويندوز، أقصى استجابة" data-en="Hidden Windows plan, maximum responsiveness"></td></tr>
+      <tr><td data-ar="المؤثرات البصرية → أفضل أداء" data-en="Visual effects → best performance"></td><td data-ar="يعطّل الأنيميشن/الشفافية" data-en="Disables animations/transparency"></td></tr>
+      <tr><td data-ar="تعطيل تطبيقات الخلفية" data-en="Disable background apps"></td><td data-ar="تطبيقات UWP تتوقف عن العمل بالخلفية" data-en="UWP apps stop running in the background"></td></tr>
+      <tr><td data-ar="HAGS" data-en="HAGS"></td><td data-ar="جدولة GPU بالعتاد، يحتاج إعادة تشغيل" data-en="Hardware GPU scheduling, needs a restart"></td></tr>
+    </table>
+
+    <div class="warn-box">
+      <strong data-ar="متقدم: Memory Integrity" data-en="Advanced: Memory Integrity"></strong><br>
+      <span data-ar="تعطيله يرفع الأداء ببعض الألعاب لكنه يقلل الحماية ضد برمجيات خبيثة على مستوى النظام (rootkits). يحتاج تأكيدك الصريح بالتطبيق ولا يُفعّل تلقائيًا بأي حزمة تسريع."
+            data-en="Disabling it can boost performance in some games but reduces protection against kernel-level malware (rootkits). It requires your explicit confirmation in-app and is never auto-applied by any speed-up bundle."></span>
+    </div>
+
+    <h3 data-ar="الإصلاح" data-en="Repair"></h3>
+    <ul>
+      <li data-ar="تفريغ ذاكرة DNS المؤقتة." data-en="Flush the DNS cache."></li>
+      <li data-ar="فحص القرص (بدون تعطيل، read-only)." data-en="Disk scan (non-disruptive, read-only)."></li>
+      <li data-ar="إنشاء نقطة استعادة نظام قبل أي إصلاح خطر." data-en="Create a System Restore point before risky repairs."></li>
+      <li data-ar="SFC و DISM لفحص وإصلاح ملفات/صورة النظام." data-en="SFC and DISM to check/repair system files & image."></li>
+    </ul>
+
+    <h3 data-ar="الوضع التجريبي" data-en="Test Mode"></h3>
+    <p data-ar="عند تفعيله من الإعدادات، أي حذف/إنهاء/تعديل يُسجَّل بالسجل فقط ('كنت سأفعل...') بدون تنفيذ فعلي."
+       data-en="When enabled in Settings, any delete/terminate/change is only logged ('would do...') without actually running."></p>
+  </section>
+
+  <!-- ===================== DEV DOCS ===================== -->
+  <section id="devDocs">
+    <h2 data-ar="مرجع المطورين" data-en="Developer Reference"></h2>
+
+    <h3 data-ar="بنية المشروع" data-en="Project Structure"></h3>
+    <pre>src/
+  config/settings.py     # SettingsManager: load/save/merge config.json (atomic writes)
+  core/cleaner.py        # SystemCleaner: temp/recycle bin/update cache (symlink-safe)
+  core/optimizer.py      # SystemOptimizer: process/service/startup control
+  core/tweaks.py         # PerformanceTweaks: power plan/visual fx/HAGS/VBS
+  core/repair.py         # SystemRepair: SFC/DISM/restore point/DNS/chkdsk
+  gui/main_window.py     # MainWindow: tabs, dashboard timer, background workers
+  gui/settings_window.py # SettingsWindow + admin user management
+  gui/login_window.py    # LoginWindow (first-run + auth)
+  utils/auth.py          # AuthManager: PBKDF2 local accounts
+  utils/logger.py        # UILogHandler (thread-safe via Qt Signal), file logging
+  utils/workers.py       # TaskWorker (QThread wrapper)
+main.py                  # entry point
+config.json              # persisted settings + accounts + feature flags</pre>
+
+    <h3 data-ar="مبادئ التصميم" data-en="Design Principles"></h3>
+    <ul>
+      <li data-ar="كل عملية تلمس القرص/الريجستري/تنهي عملية تمر من test_mode أولاً." data-en="Every disk/registry-touching or process-terminating action goes through test_mode first."></li>
+      <li data-ar="ما شي يشتغل بخيط الواجهة لأكثر من لحظة — استخدم TaskWorker." data-en="Nothing runs on the UI thread for more than an instant — use TaskWorker."></li>
+      <li data-ar="SettingsManager.save() يدمج (merge) دائمًا إلا لو مررت merge=False صراحة." data-en="SettingsManager.save() always merges unless merge=False is passed explicitly."></li>
+      <li data-ar="العمليات الحرجة لإقلاع ويندوز (_BOOT_CRITICAL بـ optimizer.py) غير قابلة للتعديل من الإعدادات — هذا حد تقني وليس قرار سياسة." data-en="Windows boot-critical processes (_BOOT_CRITICAL in optimizer.py) cannot be overridden from settings — that's a technical limit, not a policy choice."></li>
+      <li data-ar="ممنوع أي كود يستخرج أو يفكّ تشفير بيانات اعتماد محفوظة (كلمات مرور متصفح وغيرها) — خارج نطاق هذا المشروع نهائيًا." data-en="No code that extracts or decrypts stored credentials (browser passwords, etc.) — permanently out of scope for this project."></li>
+    </ul>
+
+    <h3 data-ar="نظام الميزات (Feature Flags)" data-en="Feature Flags"></h3>
+    <p data-ar="config.json يحتوي feature_flags جاهزة لتفعيل نموذج مجاني/مدفوع مستقبلاً. كل الميزات enabled=true حاليًا لجميع الأدوار. لوحة تحكم مستقبلية (تبويب 'لوحة التحكم' بواجهة الأدمين حاليًا مجرد placeholder) ستتحكم بـ tier لكل ميزة."
+       data-en="config.json ships feature_flags ready for a future free/paid model. Everything is enabled=true today for every role. A future control panel (the admin 'Control Panel' tab is currently just a placeholder) will govern each feature's tier."></p>
+
+    <h3 data-ar="المصادقة" data-en="Authentication"></h3>
+    <p data-ar="PBKDF2-HMAC-SHA256 مع 260,000 تكرار وsalt عشوائي لكل مستخدم (utils/auth.py). هذا تحكم وصول محلي على نفس الجهاز، وليس حاجزًا ضد شخص يملك وصول مباشر لملف config.json."
+       data-en="PBKDF2-HMAC-SHA256 with 260,000 iterations and a per-user random salt (utils/auth.py). This is local access control on the same machine, not a barrier against someone with direct access to config.json."></p>
+
+    <h3 data-ar="إضافة تحسين جديد" data-en="Adding a New Tweak"></h3>
+    <p data-ar="أضف دالة بـ PerformanceTweaks ترجع TweakResult(success, message, needs_restart)، ثم زر بـ main_window.py يستدعيها عبر _run_tweak() عشان تشتغل بخيط منفصل تلقائيًا."
+       data-en="Add a method to PerformanceTweaks returning TweakResult(success, message, needs_restart), then a button in main_window.py calling it via _run_tweak() so it automatically runs on a background thread."></p>
+  </section>
+
+  <footer data-ar="Faster PC — وثائق المشروع." data-en="Faster PC — project documentation."></footer>
+</main>
+
+<script>
+  let currentLang = "ar";
+  let currentDocs = "user";
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    document.getElementById("langAr").classList.toggle("active", lang === "ar");
+    document.getElementById("langEn").classList.toggle("active", lang === "en");
+    document.getElementById("hdrDocsLabel").textContent = lang === "ar" ? "التوثيق" : "Documentation";
+    document.querySelectorAll("[data-ar]").forEach(el => {
+      const text = lang === "ar" ? el.getAttribute("data-ar") : el.getAttribute("data-en");
+      if (text) el.textContent = text;
+    });
+  }
+
+  function showDocs(which) {
+    currentDocs = which;
+    document.getElementById("userDocs").classList.toggle("visible", which === "user");
+    document.getElementById("devDocs").classList.toggle("visible", which === "dev");
+    document.getElementById("tabUser").classList.toggle("active", which === "user");
+    document.getElementById("tabDev").classList.toggle("active", which === "dev");
+  }
+
+  setLang("ar");
+  showDocs("user");
+</script>
+</body>
+</html>
