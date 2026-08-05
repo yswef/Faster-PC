@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+ENV/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+
+# API keys and secrets
+*.env
+.env.*
+secrets.json
+credentials.json
+*.pem
+*.key
+*.crt
+scripts/
