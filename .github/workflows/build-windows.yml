@@ -1,0 +1,68 @@
+name: Build Windows executable
+
+# يبني FasterPC.exe على ويندوز ويرفعه كمخرج يمكن تنزيله وتشغيله مباشرة.
+# يعمل يدويًا من تبويب Actions، أو تلقائيًا عند إنشاء إصدار (tag يبدأ بـ v).
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: pytest -q
+
+      - name: Build executable
+        run: pyinstaller --noconfirm --clean faster_pc.spec
+
+      - name: Prepare installer bundle
+        run: |
+          copy packaging\install.bat dist\install.bat
+          copy packaging\install.ps1 dist\install.ps1
+          copy packaging\uninstall.bat dist\uninstall.bat
+          copy packaging\uninstall.ps1 dist\uninstall.ps1
+          copy LICENSE dist\LICENSE
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FasterPC-windows
+          path: |
+            dist/FasterPC.exe
+            dist/install.bat
+            dist/install.ps1
+            dist/uninstall.bat
+            dist/uninstall.ps1
+            dist/LICENSE
+
+      - name: Attach build to release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/FasterPC.exe
+            dist/install.bat
+            dist/install.ps1
+            dist/uninstall.bat
+            dist/uninstall.ps1
