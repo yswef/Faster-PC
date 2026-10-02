@@ -1,19 +1,26 @@
+"""
+Faster PC — نقطة التشغيل.
+
+الاستخدام:
+    python main.py               # تشغيل عادي (يفتح الإعداد الأولي عند أول مرة)
+    python main.py --minimized   # التشغيل مصغّرًا في شريط المهام (يُستخدم مع التشغيل التلقائي)
+    python main.py --headless    # فحص سريع بدون واجهة (للتشخيص والاختبارات)
+"""
+
 import sys
-import logging
-
-from src.gui.main_window import launch_app
 
 
-def main():
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-    try:
-        launch_app()
-    except Exception:
-        # آخر خط دفاع: أي استثناء غير متوقع يُسجّل بدل ما يطبع traceback
-        # خام لمستخدم غير تقني ويقفل البرنامج فجأة بدون تفسير.
-        logging.exception("Fatal error, application will exit.")
-        sys.exit(1)
+def main() -> int:
+    argv = sys.argv[1:]
+    if "--headless" in argv:
+        from src.gui.app import run_headless_check
+
+        return run_headless_check()
+
+    from src.gui.app import launch_app
+
+    return launch_app(sys.argv)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
