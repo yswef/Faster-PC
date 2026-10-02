@@ -19,14 +19,14 @@
     --mono: "Consolas", "SFMono-Regular", Menlo, monospace;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); font-family: "Segoe UI", Tahoma, Arial, sans-serif; line-height: 1.75; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: "Segoe UI", Tahoma, Arial, sans-serif; line-height: 1.8; }
   header {
     position: sticky; top: 0; z-index: 10; background: var(--panel);
     border-bottom: 1px solid var(--border); padding: 14px 24px;
     display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
   }
   header h1 { font-size: 18px; margin: 0; }
-  header h1 span { color: var(--accent-2); }
+  header h1 span.brand { color: var(--accent-2); }
   .controls { display: flex; gap: 8px; }
   button {
     background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
@@ -34,7 +34,7 @@
   }
   button:hover { border-color: var(--accent); }
   button.active { background: var(--accent); border-color: var(--accent); }
-  main { max-width: 920px; margin: 0 auto; padding: 32px 24px 80px; }
+  main { max-width: 940px; margin: 0 auto; padding: 32px 24px 80px; }
   nav.toc { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
   nav.toc a {
     color: var(--muted); text-decoration: none; font-size: 13px;
@@ -44,20 +44,25 @@
   section { margin-bottom: 42px; }
   h2 { font-size: 22px; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 16px; }
   h3 { color: var(--accent); font-size: 16px; margin-top: 26px; }
+  h4 { font-size: 14px; margin: 18px 0 6px; color: var(--accent-2); }
   p, li { color: var(--text); font-size: 14.5px; }
   .muted { color: var(--muted); font-size: 13px; }
   code, pre { font-family: var(--mono); background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; }
-  code { padding: 2px 6px; font-size: 13px; }
-  pre { padding: 14px; overflow-x: auto; font-size: 13px; }
+  code { padding: 2px 6px; font-size: 13px; direction: ltr; display: inline-block; }
+  pre { padding: 14px; overflow-x: auto; font-size: 12.5px; direction: ltr; text-align: left; }
   table { width: 100%; border-collapse: collapse; margin-top: 8px; }
   th { text-align: start; padding: 8px 4px; border-bottom: 1px solid var(--border); }
-  td { padding: 8px 4px; border-bottom: 1px solid var(--border); }
+  td { padding: 8px 4px; border-bottom: 1px solid var(--border); vertical-align: top; }
   .warn-box {
     background: rgba(240,173,78,0.1); border: 1px solid var(--warn); border-radius: 8px;
     padding: 14px 16px; font-size: 13.5px; margin: 14px 0;
   }
   .danger-box {
     background: rgba(231,76,60,0.1); border: 1px solid var(--danger); border-radius: 8px;
+    padding: 14px 16px; font-size: 13.5px; margin: 14px 0;
+  }
+  .ok-box {
+    background: rgba(39,174,96,0.1); border: 1px solid var(--accent-2); border-radius: 8px;
     padding: 14px 16px; font-size: 13.5px; margin: 14px 0;
   }
   .docs-toggle { display: flex; gap: 8px; margin-bottom: 24px; }
@@ -69,7 +74,7 @@
 <body>
 
 <header>
-  <h1>Faster <span>PC</span> — <span id="hdrDocsLabel">التوثيق</span></h1>
+  <h1>Faster <span class="brand">PC</span> — <span id="hdrDocsLabel">التوثيق</span></h1>
   <div class="controls">
     <button id="langAr" class="active" onclick="setLang('ar')">العربية</button>
     <button id="langEn" onclick="setLang('en')">English</button>
@@ -85,110 +90,198 @@
   <!-- ===================== USER DOCS ===================== -->
   <section id="userDocs" class="visible">
     <h2 data-ar="ما هو Faster PC؟" data-en="What is Faster PC?"></h2>
-    <p data-ar="أداة صيانة وتسريع لنظام ويندوز: تنظيف ملفات مؤقتة، إدارة عمليات وخدمات، تعطيل برامج بدء التشغيل، تحسينات أداء حقيقية (خطة الطاقة، المؤثرات البصرية، تطبيقات الخلفية)، وإصلاح ملفات النظام. كل عملية مسجّلة وقابلة للمعاينة قبل التنفيذ عبر الوضع التجريبي."
-       data-en="A Windows maintenance and speed-up tool: cleans temp files, manages processes and services, disables startup programs, applies real performance tweaks (power plan, visual effects, background apps), and repairs system files. Every action is logged and can be previewed first via Test Mode."></p>
+    <p data-ar="تطبيق سطح مكتب لويندوز يجمع صيانة الجهاز وتسريعه في مكان واحد: تنظيف آمن، إدارة عمليات وخدمات وبرامج بدء تشغيل، تحسينات أداء حقيقية قابلة للتراجع، إصلاح ملفات النظام، ومراقبة مباشرة للأداء والأعطال — بواجهة عربية، وتشغيل صامت بدون أي نوافذ أوامر."
+       data-en="A Windows desktop app that bundles PC maintenance and speed-up in one place: safe cleaning, process/service/startup management, real reversible performance tweaks, system-file repair, and live performance & crash monitoring — with a silent, window-free operation."></p>
+
+    <h3 data-ar="أول تشغيل: معالج الإعداد" data-en="First launch: the setup wizard"></h3>
+    <p data-ar="عند أول تشغيل يظهر معالج من 6 خطوات: ترحيب، إنشاء حساب المدير، اختيار البرامج التي لا تريد إغلاقها أبدًا، خيارات التثبيت (اختصار سطح المكتب، قائمة ابدأ، التشغيل مع ويندوز، استثناءات Defender، الوضع التجريبي)، إعداد المراقبة والتنبيهات، ثم ملخص نتائج التثبيت. كل خطوة قابلة للتغيير لاحقًا من الإعدادات."
+       data-en="On first launch a 6-step wizard appears: welcome, admin account, choosing apps you never want closed, install options (desktop shortcut, Start Menu, run with Windows, Defender exclusions, test mode), monitoring & alert preferences, then a results summary. Everything can be changed later in Settings."></p>
 
     <h3 data-ar="الحسابات" data-en="Accounts"></h3>
-    <p data-ar="عند أول تشغيل تنشئ حساب مدير (Admin). يقدر المدير إضافة حسابات أخرى من الإعدادات. كل الحسابات (مدير أو مستخدم) تشوف كل الميزات حاليًا — تعدد المستخدمين هنا لتتبّع من نفّذ كل عملية بالسجل، وتحضيرًا لإصدار مستقبلي يقدر يقيّد ميزات معيّنة."
-       data-en="On first launch you create an Admin account. The admin can add more accounts from Settings. Every account (admin or user) currently sees all features — multi-user support exists to attribute logged actions and to prepare for a future release that can restrict certain features."></p>
+    <p data-ar="يُنشأ حساب المدير في المعالج. المدير يقدر يضيف أو يحذف مستخدمين من تبويب 'المستخدمون'. كلمات المرور تُخزَّن محليًا بـ PBKDF2-HMAC-SHA256 (260 ألف تكرار + salt لكل مستخدم)، ولا تُرسل لأي مكان. بعد 5 محاولات دخول خاطئة يُقفل النموذج مؤقتًا."
+       data-en="The admin account is created in the wizard. Admins can add/remove users from the Users tab. Passwords are stored locally with PBKDF2-HMAC-SHA256 (260k iterations + per-user salt) and never transmitted. Five failed sign-ins lock the form temporarily."></p>
 
-    <h3 data-ar="اللوحة الرئيسية" data-en="Dashboard"></h3>
-    <p data-ar="عرض مباشر لاستهلاك المعالج والذاكرة والقرص يتحدث كل ثانيتين، مع زر 'تطبيق حزمة التسريع الموصى بها' يشغّل خطة الأداء العالي، يضبط المؤثرات البصرية، ويعطّل تطبيقات الخلفية دفعة واحدة."
-       data-en="A live CPU/RAM/disk usage view refreshing every 2 seconds, plus a one-click 'Apply recommended speed-up bundle' button that sets the high-performance power plan, tunes visual effects, and disables background apps in one go."></p>
+    <h3 data-ar="لوحة الأداء" data-en="Performance dashboard"></h3>
+    <ul>
+      <li data-ar="بطاقات مباشرة: المعالج، الذاكرة، قرص النظام، والشبكة — مع رسم بياني زمني لكل منها." data-en="Live cards: CPU, RAM, system disk, network — each with a time sparkline."></li>
+      <li data-ar="أعلى العمليات استهلاكًا لحظيًا مع بيان العمليات المحمية." data-en="Top processes right now, with protected ones marked."></li>
+      <li data-ar="إجراءات سريعة: حزمة التسريع، تنظيف مؤقت، فحص الصحة." data-en="Quick actions: speed-up bundle, temp cleanup, health scan."></li>
+      <li data-ar="تنبيه ذكي: لا يُنبّهك عند القفزات اللحظية، بل عند استمرار التجاوز للمدة التي حددتها (افتراضيًا 15 ثانية)." data-en="Smart alerts: warns on sustained overuse (default 15s), not momentary spikes."></li>
+    </ul>
 
     <h3 data-ar="التنظيف" data-en="Cleaning"></h3>
     <ul>
-      <li data-ar="حذف الملفات المؤقتة (ويندوز و/أو الشخصية)." data-en="Delete temporary files (Windows and/or personal)."></li>
-      <li data-ar="إفراغ سلة المحذوفات." data-en="Empty the Recycle Bin."></li>
-      <li data-ar="حذف ذاكرة تحديثات ويندوز القديمة." data-en="Clear old Windows Update cache."></li>
+      <li data-ar="الملفات المؤقتة: مجلد ويندوز دائمًا، ومجلدك %TEMP% فقط عند تحديدك الصريح (مع زر لحساب الحجم قبل التنظيف)." data-en="Temp files: Windows temp always; your %TEMP% only when you opt in (size can be estimated first)."></li>
+      <li data-ar="سلة المحذوفات: إفراغ مباشر مع عرض الحجم وعدد العناصر." data-en="Recycle Bin: direct empty with size and item count shown."></li>
+      <li data-ar="مخلفات تحديثات ويندوز: يوقف خدمات التحديث، يفرّغ المجلد، ثم يعيد تشغيل الخدمات تلقائيًا." data-en="Windows Update cache: stops update services, clears the folder, restarts services automatically."></li>
+      <li data-ar="تقارير الأعطال: ملفات WER و CrashDumps الخاصة بحسابك." data-en="Crash reports: WER files and CrashDumps in your profile."></li>
     </ul>
+    <div class="ok-box">
+      <strong data-ar="أمان الحذف" data-en="Deletion safety"></strong><br>
+      <span data-ar="كل حذف يتحقق أن المسار الحقيقي (بعد حل الروابط الرمزية) داخل المجلد المستهدف، والملفات المقفلة تُتخطى، والبرنامج لا يلمس أبدًا كلمات المرور أو الكوكيز أو بيانات الاعتماد في أي متصفح."
+            data-en="Every deletion verifies the real path stays inside the target folder (symlink-safe); locked files are skipped; browser passwords, cookies, and credentials are never touched."></span>
+    </div>
 
-    <h3 data-ar="التحسين — إنهاء العمليات" data-en="Optimize — Process Control"></h3>
+    <h3 data-ar="العمليات" data-en="Processes"></h3>
+    <p data-ar="جدول بأعلى العمليات استهلاكًا مع حالة الحماية لكل عملية، وإنهاء عملية محددة (بتأكيد)، وإنهاء قائمة الإنهاء المحددة، أو إنهاء كل العمليات غير المستثناة."
+       data-en="A table of top processes with each process's protection status, terminate a specific process (with confirmation), terminate the curated kill list, or terminate everything not excluded."></p>
     <div class="danger-box">
       <strong data-ar="⚠ إنهاء كل العمليات غير المستثناة" data-en="⚠ Terminate all non-excluded processes"></strong><br>
-      <span data-ar="هذا الزر ينهي كل عملية جارية على جهازك عدا القائمة اللي تحددها بـ 'عمليات مستثناة من الإنهاء الجماعي' بالإعدادات. مجموعة صغيرة جدًا من عمليات إقلاع ويندوز الحرجة (csrss.exe, lsass.exe, wininit.exe...) محمية دائمًا لأن إنهاءها يسبب توقف النظام فورًا — هذا ليس قيدًا اختياريًا، هذا كيف يعمل ويندوز. أي شيء آخر (متصفحات، svchost، حتى explorer.exe) قابل للإنهاء بالكامل."
-            data-en="This button terminates every running process except whatever you list under 'Processes excluded from bulk termination' in Settings. A very small set of Windows boot-critical processes (csrss.exe, lsass.exe, wininit.exe...) is always protected because terminating them crashes the system instantly — that isn't an optional restriction, it's simply how Windows works. Everything else (browsers, svchost, even explorer.exe) can be terminated."></span>
+      <span data-ar="ينهي كل عملية جارية عدا: (1) عمليات النواة والإقلاع المحمية دائمًا — لا يمكن استثناؤها لأن إنهاءها يوقف النظام فورًا، (2) استثناءاتك وقائمة البرامج المحمية، (3) البرنامج نفسه وأي عملية يشغّلها. مطلوب تأكيد صريح بمربع اختيار قبل التنفيذ."
+            data-en="Terminates every running process except: (1) permanently protected kernel/boot processes (crashing Windows if killed), (2) your exclusions and protected apps, (3) Faster PC itself and its child processes. An explicit checkbox confirmation is required."></span>
     </div>
-    <p data-ar="راجع دائمًا قائمة 'عمليات مستثناة من الإنهاء الجماعي' بالإعدادات قبل استخدام هذا الزر، وتأكد من حفظ عملك بالبرامج المفتوحة."
-       data-en="Always review the exclusion list in Settings before using this button, and save your work in open programs first."></p>
 
-    <h3 data-ar="الخدمات" data-en="Services"></h3>
-    <p data-ar="قائمة خدمات ويندوز الشائعة (SysMain, WSearch, DiagTrack...) مع وصف مختصر لكل وحدة، وإمكانية إيقافها/تشغيلها. الخدمات المدرجة بـ 'خدمات مستثناة' بالإعدادات (WinDefend, EventLog افتراضيًا) محمية من التعديل."
-       data-en="A list of common Windows services (SysMain, WSearch, DiagTrack...) with a short description of each, and the ability to stop/start them. Services listed under 'excluded services' in Settings (WinDefend, EventLog by default) are protected from changes."></p>
+    <h3 data-ar="الحماية والاستثناءات" data-en="Protection & exclusions"></h3>
+    <p data-ar="ثلاث طبقات حماية: الطبقة الدائمة (غير قابلة للتعديل)، الطبقة الافتراضية (مكوّنات ويندوز + تطبيق الصور + عمليات شائعة)، وطبقتك الخاصة. تقدر تضيف برنامجًا للحماية من ثلاثة طرق: اختياره من البرامج الجارية، أو استعراض ملف exe، أو كتابة اسمه يدويًا. المضافة تُستثنى من كل عمليات الإنهاء وتبقى محمية في نفس الوقت."
+       data-en="Three protection layers: permanent (not configurable), default (Windows components + Photos app + common processes), and your own. Add an app three ways: pick from running apps, browse for an exe, or type its name. Added apps are both excluded and protected."></p>
 
-    <h3 data-ar="بدء التشغيل" data-en="Startup"></h3>
-    <p data-ar="تعطيل أي برنامج بدء تشغيل بأمان (يعاد تسميته بدل حذفه، فتقدر ترجعه بسهولة) لتسريع الإقلاع."
-       data-en="Safely disable any startup program (renamed rather than deleted, so it's easy to restore) to speed up boot time."></p>
+    <h3 data-ar="الخدمات وبدء التشغيل" data-en="Services & startup"></h3>
+    <ul>
+      <li data-ar="قائمة خدمات معروفة بالاستهلاك المرتفع، وحالتها ونوع تشغيلها يُقرآن من النظام مباشرة، والخدمات الحيوية محمية من الإيقاف." data-en="Known heavy services with live status/start-type from the OS; critical services cannot be stopped."></li>
+      <li data-ar="برامج بدء التشغيل تُعطَّل بإعادة تسمية القيمة فقط (رجعي بالكامل)، وتقدر ترجعها بضغطة أو من سجل التغييرات." data-en="Startup programs are disabled by renaming only (fully reversible) — restore with one click or via the journal."></li>
+    </ul>
 
-    <h3 data-ar="تسريع النظام" data-en="System Tweaks"></h3>
+    <h3 data-ar="تسريع النظام" data-en="System tweaks"></h3>
     <table>
       <tr><th data-ar="التحسين" data-en="Tweak"></th><th data-ar="التأثير" data-en="Effect"></th></tr>
       <tr><td data-ar="خطة الأداء العالي" data-en="High Performance power plan"></td><td data-ar="يمنع خفض تردد المعالج للتوفير" data-en="Prevents CPU throttling for power saving"></td></tr>
-      <tr><td data-ar="خطة الأداء المطلق" data-en="Ultimate Performance plan"></td><td data-ar="خطة مخفية بويندوز، أقصى استجابة" data-en="Hidden Windows plan, maximum responsiveness"></td></tr>
-      <tr><td data-ar="المؤثرات البصرية → أفضل أداء" data-en="Visual effects → best performance"></td><td data-ar="يعطّل الأنيميشن/الشفافية" data-en="Disables animations/transparency"></td></tr>
-      <tr><td data-ar="تعطيل تطبيقات الخلفية" data-en="Disable background apps"></td><td data-ar="تطبيقات UWP تتوقف عن العمل بالخلفية" data-en="UWP apps stop running in the background"></td></tr>
-      <tr><td data-ar="HAGS" data-en="HAGS"></td><td data-ar="جدولة GPU بالعتاد، يحتاج إعادة تشغيل" data-en="Hardware GPU scheduling, needs a restart"></td></tr>
+      <tr><td data-ar="خطة الأداء المطلق (مخفية)" data-en="Ultimate Performance plan (hidden)"></td><td data-ar="أقصى استجابة، تُفتح وتُفعّل تلقائيًا" data-en="Maximum responsiveness, unlocked and activated automatically"></td></tr>
+      <tr><td data-ar="المؤثرات البصرية → أفضل أداء" data-en="Visual effects → best performance"></td><td data-ar="يعطّل الأنيميشن/الظلال لتقليل استهلاك المعالج" data-en="Disables animations/shadows to cut CPU use"></td></tr>
+      <tr><td data-ar="تعطيل الشفافية والحركات" data-en="Disable transparency & animations"></td><td data-ar="واجهة أخف وأسرع" data-en="Lighter, faster shell"></td></tr>
+      <tr><td data-ar="تسريع ظهور القوائم" data-en="Faster menus"></td><td data-ar="تقليل تأخير القوائم إلى الصفر" data-en="Menu delay set to zero"></td></tr>
+      <tr><td data-ar="تعطيل تطبيقات الخلفية (UWP)" data-en="Disable background apps (UWP)"></td><td data-ar="توفير ذاكرة ومعالج" data-en="Saves RAM and CPU"></td></tr>
+      <tr><td data-ar="الإقلاع السريع" data-en="Fast Startup"></td><td data-ar="تحسين زمن الإقلاع (يحتاج إعادة تشغيل)" data-en="Improves boot time (needs restart)"></td></tr>
+      <tr><td data-ar="جدولة GPU بالعتاد (HAGS)" data-en="Hardware GPU scheduling (HAGS)"></td><td data-ar="استجابة أفضل على بطاقات حديثة (يحتاج إعادة تشغيل)" data-en="Better latency on modern GPUs (needs restart)"></td></tr>
+      <tr><td data-ar="تقليل كتابات NTFS" data-en="Reduce NTFS writes"></td><td data-ar="إيقاف تحديث وقت آخر وصول للملفات" data-en="Disable last-access-time updates"></td></tr>
     </table>
-
     <div class="warn-box">
       <strong data-ar="متقدم: Memory Integrity" data-en="Advanced: Memory Integrity"></strong><br>
-      <span data-ar="تعطيله يرفع الأداء ببعض الألعاب لكنه يقلل الحماية ضد برمجيات خبيثة على مستوى النظام (rootkits). يحتاج تأكيدك الصريح بالتطبيق ولا يُفعّل تلقائيًا بأي حزمة تسريع."
-            data-en="Disabling it can boost performance in some games but reduces protection against kernel-level malware (rootkits). It requires your explicit confirmation in-app and is never auto-applied by any speed-up bundle."></span>
+      <span data-ar="تعطيله يرفع الأداء ببعض الحالات لكنه يقلل الحماية ضد برمجيات خبيثة على مستوى kernel (rootkits). لا يُنفَّذ إلا بمربع تأكيد صريح، ويمكن التراجع من سجل التغييرات."
+            data-en="Disabling it can boost performance but reduces protection against kernel-level malware (rootkits). It requires an explicit confirmation checkbox and can be undone from the journal."></span>
     </div>
 
-    <h3 data-ar="الإصلاح" data-en="Repair"></h3>
+    <h3 data-ar="الأعطال والصحة" data-en="Crashes & health"></h3>
     <ul>
-      <li data-ar="تفريغ ذاكرة DNS المؤقتة." data-en="Flush the DNS cache."></li>
-      <li data-ar="فحص القرص (بدون تعطيل، read-only)." data-en="Disk scan (non-disruptive, read-only)."></li>
-      <li data-ar="إنشاء نقطة استعادة نظام قبل أي إصلاح خطر." data-en="Create a System Restore point before risky repairs."></li>
-      <li data-ar="SFC و DISM لفحص وإصلاح ملفات/صورة النظام." data-en="SFC and DISM to check/repair system files & image."></li>
+      <li data-ar="أعطال التطبيقات وتعليقها خلال 24 ساعة، مقروءة من سجل أحداث ويندوز (1000/1001/1002/1026) و System (أخطاء المستوى 1/2)." data-en="App crashes and hangs in the last 24h, read from the Windows Event Log (1000/1001/1002/1026 and System level 1/2)."></li>
+      <li data-ar="حالة كل الأقراص والمساحة المتبقية، وتنبيه قبل الامتلاء." data-en="All disks with free space, warning before they fill."></li>
+      <li data-ar="تصدير تقرير كامل ومشاركته عند طلب الدعم." data-en="Export a full report to share when asking for support."></li>
+    </ul>
+
+    <h3 data-ar="سجل التغييرات (التراجع)" data-en="Change journal (undo)"></h3>
+    <p data-ar="كل تغيير (خدمة، برنامج بدء تشغيل، ريجستري، خطة طاقة) يُسجَّل مع قيمته السابقة ووقته. اختر أي صف واضغط 'التراجع عن المحدد'، فيرجع النظام كما كان. بعض العمليات (مثل إنهاء العمليات) لا يمكن التراجع عنها لأنها بطبيعتها تحتاج إعادة فتح البرنامج يدويًا."
+       data-en="Every change (service, startup item, registry, power plan) records its previous value and time. Select a row and click 'Undo selected' to restore the system. Some actions (like terminating processes) can't be undone and must be reopened manually."></p>
+
+    <h3 data-ar="التنبيهات والسجل" data-en="Notifications & logs"></h3>
+    <ul>
+      <li data-ar="مركز التنبيهات: زر '🔔 التنبيهات' أسفل النافذة يعرض كل التنبيهات مع العدّاد." data-en="Notification center: the '🔔' button at the bottom shows every notification with a counter."></li>
+      <li data-ar="تنبيهات شريط المهام (Toasts) قابلة للإيقاف من الإعدادات، أما أخطاء النظام الحرجة فلا تُكتم أبدًا." data-en="Tray toasts can be disabled in Settings; critical errors are never muted."></li>
+      <li data-ar="سجل العمليات داخل البرنامج + ملفات سجل دائمة في مجلد logs (faster_pc.log، errors.log، crash.log)." data-en="In-app activity log plus permanent log files in the logs folder (faster_pc.log, errors.log, crash.log)."></li>
     </ul>
 
     <h3 data-ar="الوضع التجريبي" data-en="Test Mode"></h3>
-    <p data-ar="عند تفعيله من الإعدادات، أي حذف/إنهاء/تعديل يُسجَّل بالسجل فقط ('كنت سأفعل...') بدون تنفيذ فعلي."
-       data-en="When enabled in Settings, any delete/terminate/change is only logged ('would do...') without actually running."></p>
+    <p data-ar="عند تفعيله من الإعدادات (أو من معالج الإعداد)، كل عملية تُسجَّل بس 'كان سيتم...' بدون أي تعديل حقيقي — مثالي لتجربة البرنامج أولًا بأمان."
+       data-en="When enabled (in Settings or during setup), every action is logged as 'would do...' without any real change — perfect for safely trying the app first."></p>
+
+    <h3 data-ar="شريط المهام والتشغيل التلقائي" data-en="Tray & auto-start"></h3>
+    <ul>
+      <li data-ar="البرنامج يبقى في شريط المهام عند إغلاق النافذة (يمكن إيقاف هذا من الإعدادات)." data-en="The app stays in the tray when you close the window (can be disabled in Settings)."></li>
+      <li data-ar="قائمة سريعة من الأيقونة: فتح، تسريع سريع، تنظيف مؤقت، فحص صحة، خروج." data-en="Tray quick menu: open, quick speed-up, temp clean, health scan, quit."></li>
+      <li data-ar="خيار التشغيل التلقائي مع ويندوز (اختياري) يبدأ البرنامج مصغّرًا بلا نوافذ." data-en="Optional run-with-Windows starts the app minimized with no windows."></li>
+    </ul>
   </section>
 
   <!-- ===================== DEV DOCS ===================== -->
   <section id="devDocs">
     <h2 data-ar="مرجع المطورين" data-en="Developer Reference"></h2>
 
-    <h3 data-ar="بنية المشروع" data-en="Project Structure"></h3>
+    <h3 data-ar="بنية المشروع" data-en="Project structure"></h3>
     <pre>src/
-  config/settings.py     # SettingsManager: load/save/merge config.json (atomic writes)
-  core/cleaner.py        # SystemCleaner: temp/recycle bin/update cache (symlink-safe)
-  core/optimizer.py      # SystemOptimizer: process/service/startup control
-  core/tweaks.py         # PerformanceTweaks: power plan/visual fx/HAGS/VBS
-  core/repair.py         # SystemRepair: SFC/DISM/restore point/DNS/chkdsk
-  gui/main_window.py     # MainWindow: tabs, dashboard timer, background workers
-  gui/settings_window.py # SettingsWindow + admin user management
-  gui/login_window.py    # LoginWindow (first-run + auth)
-  utils/auth.py          # AuthManager: PBKDF2 local accounts
-  utils/logger.py        # UILogHandler (thread-safe via Qt Signal), file logging
-  utils/workers.py       # TaskWorker (QThread wrapper)
-main.py                  # entry point
-config.json              # persisted settings + accounts + feature flags</pre>
+  version.py            # APP_VERSION / APP_ID / CONFIG_SCHEMA_VERSION
+  config/settings.py    # SettingsManager: atomic writes, deep merge, schema migration, validation
+  core/
+    app_context.py      # AppContext: wires every service (usable headless)
+    exclusions.py       # ProtectionManager: 3-layer process/service protection
+    monitor.py          # PerformanceMonitor: samples, history, sustained thresholds
+    health.py           # HealthMonitor: Event Log crashes, disks, health report
+    notifications.py    # NotificationCenter (+ Level)
+    journal.py          # ChangeJournal: record/undo with registered handlers
+    cleaner.py          # SystemCleaner: symlink-safe deletes, size accounting
+    optimizer.py        # SystemOptimizer: processes/services/startup + undo handlers
+    tweaks.py           # PerformanceTweaks: registry + powercfg tweaks with undo
+    repair.py           # SystemRepair: SFC/DISM/restore/DNS/chkdsk
+    installer.py        # SystemInstaller: shortcuts, run-at-startup, Defender
+    results.py          # ActionResult dataclass
+  gui/
+    app.py              # QApplication bootstrap, single instance, excepthook
+    setup_wizard.py     # QWizard-based first-run setup
+    login_window.py     # login + lockout
+    main_window.py      # tabs, tray, task manager usage
+    settings_window.py  # all settings
+    dialogs.py          # confirm/protection/notifications/report/about
+    widgets.py theme.py # shared widgets + palette/stylesheet
+  utils/
+    winapi.py           # silent subprocess, shortcuts, recycle bin, admin, sysinfo
+    registry.py         # safe registry access (+ winreg_stub for non-Windows)
+    logger.py paths.py auth.py workers.py
+tests/                  # pytest unit tests (headless)
+tools/ui_preview.py     # offscreen screenshots of every tab</pre>
 
-    <h3 data-ar="مبادئ التصميم" data-en="Design Principles"></h3>
+    <h3 data-ar="مبادئ التصميم" data-en="Design principles"></h3>
     <ul>
-      <li data-ar="كل عملية تلمس القرص/الريجستري/تنهي عملية تمر من test_mode أولاً." data-en="Every disk/registry-touching or process-terminating action goes through test_mode first."></li>
-      <li data-ar="ما شي يشتغل بخيط الواجهة لأكثر من لحظة — استخدم TaskWorker." data-en="Nothing runs on the UI thread for more than an instant — use TaskWorker."></li>
-      <li data-ar="SettingsManager.save() يدمج (merge) دائمًا إلا لو مررت merge=False صراحة." data-en="SettingsManager.save() always merges unless merge=False is passed explicitly."></li>
-      <li data-ar="العمليات الحرجة لإقلاع ويندوز (_BOOT_CRITICAL بـ optimizer.py) غير قابلة للتعديل من الإعدادات — هذا حد تقني وليس قرار سياسة." data-en="Windows boot-critical processes (_BOOT_CRITICAL in optimizer.py) cannot be overridden from settings — that's a technical limit, not a policy choice."></li>
-      <li data-ar="ممنوع أي كود يستخرج أو يفكّ تشفير بيانات اعتماد محفوظة (كلمات مرور متصفح وغيرها) — خارج نطاق هذا المشروع نهائيًا." data-en="No code that extracts or decrypts stored credentials (browser passwords, etc.) — permanently out of scope for this project."></li>
+      <li data-ar="<b>مرجع واحد للحماية:</b> لا يُنهى أي شيء إلا بعد المرور على ProtectionManager. لا تكرار لمنطق القتل في أي ملف آخر." data-en="<b>Single protection authority:</b> nothing is terminated before ProtectionManager approves. No kill logic anywhere else."></li>
+      <li data-ar="<b>صمت كامل:</b> كل عملية خارجية عبر winapi.run_silent / run_powershell (CREATE_NO_WINDOW + STARTUPINFO مخفي + بدون shell)." data-en="<b>Total silence:</b> every external command goes through winapi.run_silent / run_powershell (CREATE_NO_WINDOW + hidden STARTUPINFO + no shell)."></li>
+      <li data-ar="<b>لا تجميد للواجهة:</b> أي عمل قد يبطئ يُنفَّذ عبر TaskManager (QThread) مع الحفاظ على المراجع حتى الانتهاء." data-en="<b>No UI freezing:</b> anything slow runs via TaskManager (QThread), with references kept until finished."></li>
+      <li data-ar="<b>كل شيء قابل للتتبع:</b> ActionResult موحّد + سجل تغييرات + تنبيهات." data-en="<b>Everything traceable:</b> unified ActionResult + change journal + notifications."></li>
+      <li data-ar="<b>الوضع التجريبي أولًا:</b> كل عملية تعدّل النظام تتحقق من test_mode قبل التنفيذ." data-en="<b>Test mode first:</b> every state-changing action checks test_mode before running."></li>
+      <li data-ar="<b>بدون شبكة:</b> لا اتصال خارجي، ولا استخراج بيانات اعتماد — خط ثابت بالمشروع." data-en="<b>No network:</b> no external calls, no credential extraction — a permanent project boundary."></li>
     </ul>
 
-    <h3 data-ar="نظام الميزات (Feature Flags)" data-en="Feature Flags"></h3>
-    <p data-ar="config.json يحتوي feature_flags جاهزة لتفعيل نموذج مجاني/مدفوع مستقبلاً. كل الميزات enabled=true حاليًا لجميع الأدوار. لوحة تحكم مستقبلية (تبويب 'لوحة التحكم' بواجهة الأدمين حاليًا مجرد placeholder) ستتحكم بـ tier لكل ميزة."
-       data-en="config.json ships feature_flags ready for a future free/paid model. Everything is enabled=true today for every role. A future control panel (the admin 'Control Panel' tab is currently just a placeholder) will govern each feature's tier."></p>
+    <h3 data-ar="نظام الإعدادات" data-en="Settings system"></h3>
+    <p data-ar="SettingsManager يقرأ/يكتب config.json بكتابة ذرية + fsync، مع نسخة .bak قبل كل حفظ، ودمج عميق مع القيم الافتراضية، وترقية تلقائية من schema v1 إلى v2، وتحقق من النطاقات (validate). الإعدادات تُحفظ في %LOCALAPPDATA%\FasterPC عند التشغيل المبني، أو جذر المشروع أثناء التطوير، أو بجانب الملف التنفيذي في الوضع المحمول (portable.flag)."
+       data-en="SettingsManager reads/writes config.json atomically (with fsync), keeps a .bak copy before each save, deep-merges with defaults, migrates schema v1 → v2, and validates ranges. Data lives in %LOCALAPPDATA%\FasterPC when frozen, the project root in dev, or next to the executable in portable mode (portable.flag)."></p>
 
-    <h3 data-ar="المصادقة" data-en="Authentication"></h3>
-    <p data-ar="PBKDF2-HMAC-SHA256 مع 260,000 تكرار وsalt عشوائي لكل مستخدم (utils/auth.py). هذا تحكم وصول محلي على نفس الجهاز، وليس حاجزًا ضد شخص يملك وصول مباشر لملف config.json."
-       data-en="PBKDF2-HMAC-SHA256 with 260,000 iterations and a per-user random salt (utils/auth.py). This is local access control on the same machine, not a barrier against someone with direct access to config.json."></p>
+    <h3 data-ar="إضافة تحسين جديد" data-en="Adding a new tweak"></h3>
+    <pre>def my_tweak(self) -> ActionResult:
+    return self._apply_registry_tweak(
+        path=r"Software\\My\\Path",
+        name="MyValue",
+        value=1,
+        description="وصف يظهر للمستخدم",
+        root=winreg.HKEY_CURRENT_USER,
+    )</pre>
+    <p data-ar="هذا يمنحك تلقائيًا: الوضع التجريبي، حفظ القيمة السابقة، إدخال سجل التغييرات، والتراجع. أما تعديلات HKLM فتُفحص صلاحيات المدير أولًا. للتحسينات غير الريجستري (مثل powercfg) استخدم ActionResult مباشرة وسجّل التغيير بـ self._record(...)."
+       data-en="That automatically gives you: test mode, previous-value capture, journal entry, and undo. HKLM tweaks check admin rights first. For non-registry tweaks (e.g. powercfg) return ActionResult directly and call self._record(...)."></p>
 
-    <h3 data-ar="إضافة تحسين جديد" data-en="Adding a New Tweak"></h3>
-    <p data-ar="أضف دالة بـ PerformanceTweaks ترجع TweakResult(success, message, needs_restart)، ثم زر بـ main_window.py يستدعيها عبر _run_tweak() عشان تشتغل بخيط منفصل تلقائيًا."
-       data-en="Add a method to PerformanceTweaks returning TweakResult(success, message, needs_restart), then a button in main_window.py calling it via _run_tweak() so it automatically runs on a background thread."></p>
+    <h3 data-ar="إضافة تبويب أو عنصر واجهة" data-en="Adding a tab or UI piece"></h3>
+    <p data-ar="كل تبويب دالة `_tab_*` ترجع QWidget داخل main_window.py. استخدم Card/StatCard/SectionHeader من widgets.py، والألوان من theme.py. المهام عبر self.ctx.tasks.run(fn, on_success=..., on_error=...) — لا تستدعِ أي عملية طويلة مباشرة."
+       data-en="Each tab is a `_tab_*` method returning a QWidget in main_window.py. Use Card/StatCard/SectionHeader from widgets.py and colors from theme.py. Run work via self.ctx.tasks.run(fn, on_success=..., on_error=...) — never call slow operations directly."></p>
+
+    <h3 data-ar="الحماية والاستثناءات" data-en="Protection & exclusions"></h3>
+    <table>
+      <tr><th data-ar="الطبقة" data-en="Layer"></th><th data-ar="التعريف" data-en="Definition"></th></tr>
+      <tr><td data-ar="دائمة" data-en="Permanent"></td><td><code>exclusions.HARD_PROTECTED_PROCESSES</code> <span data-ar="— نواة/إقلاع ويندوز، غير قابلة للتعديل من أي إعداد." data-en="— kernel/boot, not configurable by any setting."></span></td></tr>
+      <tr><td data-ar="افتراضية" data-en="Default"></td><td><code>settings.process_exclusions</code> <span data-ar="— القيم الافتراضية تشمل explorer.exe وتطبيق الصور ومكوّنات الواجهة." data-en="— defaults include explorer.exe, the Photos app, and shell components."></span></td></tr>
+      <tr><td data-ar="خاصة بالمستخدم" data-en="User"></td><td><code>settings.protected_apps</code> <span data-ar="— تُضاف تلقائيًا للاستثناءات عند الإضافة من الواجهة." data-en="— automatically added to exclusions when added from the UI."></span></td></tr>
+    </table>
+
+    <h3 data-ar="الاختبارات والجودة" data-en="Tests & quality"></h3>
+    <pre>pip install -r requirements-dev.txt
+pytest                 # headless unit tests
+ruff check .           # lint
+QT_QPA_PLATFORM=offscreen python tools/ui_preview.py   # tab screenshots</pre>
+    <p data-ar="الاختبارات تستخدم ريجستري وهمي (tests/conftest.py::FakeWinReg) وإعدادات مؤقتة، فلا تعدّل أي شيء على جهازك. واجهة GitHub Actions تشغّل الفحص والاختبارات تلقائيًا (Python 3.11 و 3.12)."
+       data-en="Tests use an in-memory fake registry (tests/conftest.py::FakeWinReg) and temporary settings, so nothing on your machine is modified. GitHub Actions runs lint + tests on Python 3.11 and 3.12."></p>
+
+    <h3 data-ar="البناء والنشر" data-en="Build & release"></h3>
+    <pre>pyinstaller --noconfirm --clean faster_pc.spec   # -> dist/FasterPC.exe
+packaging/install.bat                            # install + shortcuts
+packaging/uninstall.bat                          # uninstall</pre>
+    <p data-ar="مواصفات البناء: console=False (بدون نافذة)، uac_admin=True (طلب صلاحيات المدير)، أيقونة رسمية، معلومات إصدار في خصائص الملف، واستثناء وحدات Qt غير المستخدمة لتصغير الحجم."
+       data-en="Spec highlights: console=False (no window), uac_admin=True, official icon, file version info, and unused Qt modules excluded to shrink size."></p>
+
+    <h3 data-ar="معالجة الأخطاء" data-en="Error handling"></h3>
+    <p data-ar="أي استثناء غير ملتقط يُسجَّل في logs/crash.log ويُعرض للمستخدم برسالة واضحة (بدل traceback أو إغلاق صامت). مهام الخيوط تُسجّل باسم المهمة، وأي فشل يصل للواجهة كتنبيه مع سبب مختصر."
+       data-en="Any unhandled exception is written to logs/crash.log and shown to the user as a clear message. Background tasks log their label, and any failure reaches the UI as a notification with a short reason."></p>
   </section>
 
   <footer data-ar="Faster PC — وثائق المشروع." data-en="Faster PC — project documentation."></footer>

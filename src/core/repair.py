@@ -1,147 +1,195 @@
-import ctypes
+"""
+إصلاح النظام — SFC، DISM، نقطة استعادة، DNS، فحص القرص.
+
+كل الأوامر تُشغَّل بصمت تام (بدون أي نافذة cmd أو PowerShell ظاهرة)، بصلاحيات
+مدير، وبدون shell حقيقي (لا حقن أوامر). كل دالة ترجع ActionResult برسالة عربية
+مفيدة والتفاصيل الكاملة للمهتمين.
+"""
+
+from __future__ import annotations
+
 import logging
-import subprocess
 from datetime import datetime
+
+from src.core.results import ActionResult
+from src.utils.winapi import IS_WINDOWS, is_admin, run_silent
 
 logger = logging.getLogger(__name__)
 
 
-def is_admin() -> bool:
-    try:
-        return ctypes.windll.shell32.IsUserAnAdmin() != 0
-    except Exception:
-        return False
+def _ps_escape(text: str) -> str:
+    """تهريب نص داخل علامات اقتباس مفردة في PowerShell."""
+    return (text or "").replace("'", "''")
 
 
-class RepairResult:
-    """نتيجة موحّدة لأي عملية إصلاح، عشان الواجهة تتعامل معها بشكل ثابت."""
-
-    def __init__(self, success: bool, message: str, details: str = ""):
-        self.success = success
-        self.message = message
-        self.details = details
-
-    def __repr__(self):
-        return f"RepairResult(success={self.success}, message={self.message!r})"
+def is_admin_user() -> bool:
+    """هل البرنامج يعمل بصلاحيات مدير؟ (تُستخدم في الواجهة لعرض تحذير)."""
+    return is_admin()
 
 
 class SystemRepair:
-    """
-    عمليات إصلاح النظام. كل عملية:
-    - تتحقق من صلاحيات المدير قبل التنفيذ وترجع رسالة واضحة لو غير متوفرة
-      (بدل ما تفشل بصمت أو ترمي استثناء غير مفهوم للمستخدم).
-    - تستخدم subprocess بدون shell=True قدر الإمكان (قائمة أوامر صريحة)
-      لتقليل مخاطر حقن الأوامر (command injection)، حتى لو الأوامر هنا
-      ثابتة وما تقبل مدخلات من المستخدم أصلاً.
-    - محاطة بمعالجة استثناءات شاملة فما توقف التطبيق تحت أي ظرف.
-    """
+    """عمليات إصلاح ويندوز الرسمية مع معالجة أخطاء شاملة."""
 
-    def __init__(self, settings_manager):
+    def __init__(self, settings_manager, notifier=None):
         self.settings = settings_manager
+        self.notifier = notifier
 
     # ------------------------------------------------------------------
-    def _require_admin(self, action_name: str) -> RepairResult | None:
-        if not is_admin():
-            msg = f"{action_name} يتطلب صلاحيات مدير النظام. شغّل البرنامج كـ Administrator."
-            logger.warning(msg)
-            return RepairResult(False, msg)
+    def _require_windows(self, action: str) -> ActionResult | None:
+        if not IS_WINDOWS:
+            return ActionResult(False, f"{action} متاح على ويندوز فقط.")
         return None
 
-    def _run(self, cmd_list, timeout=1800):
-        try:
-            result = subprocess.run(
-                cmd_list, capture_output=True, text=True, timeout=timeout, shell=False
+    def _require_admin(self, action: str) -> ActionResult | None:
+        if not is_admin():
+            return ActionResult(
+                False,
+                f"{action} يتطلب تشغيل البرنامج كمسؤول (Run as Administrator).",
             )
-            return result.returncode, result.stdout, result.stderr
-        except FileNotFoundError:
-            return -1, "", "Command not found on this system."
-        except subprocess.TimeoutExpired:
-            return -1, "", "Operation timed out."
-        except OSError as e:
-            return -1, "", str(e)
+        return None
+
+    def _test_mode(self) -> bool:
+        return bool(self.settings.get("test_mode")) if self.settings else False
 
     # ------------------------------------------------------------------
-    def create_restore_point(self, description: str = None) -> RepairResult:
-        """ينشئ نقطة استعادة نظام (System Restore) قبل أي عملية إصلاح خطرة."""
-        guard = self._require_admin("إنشاء نقطة استعادة")
+    def create_restore_point(self, description: str | None = None) -> ActionResult:
+        """إنشاء نقطة استعادة قبل أي عملية خطرة (يُفضّل إنشاؤها قبل SFC/DISM)."""
+        guard = self._require_windows("إنشاء نقطة استعادة") or self._require_admin("إنشاء نقطة استعادة")
         if guard:
             return guard
+        if self._test_mode():
+            return ActionResult(True, "[وضع المعاينة] كان سيتم إنشاء نقطة استعادة.")
 
-        desc_template = description or self.settings.get("restore_point_description")
-        desc = desc_template.format(date=datetime.now().strftime("%Y-%m-%d %H:%M"))
-        # نستخدم PowerShell's Checkpoint-Computer لأنه أوثق من WMI مباشرة
-        # ولا يتطلب اسم/مكتبة wmi إضافية لهذه العملية بالذات.
-        ps_cmd = (
-            f"Checkpoint-Computer -Description '{desc}' "
-            f"-RestorePointType 'MODIFY_SETTINGS'"
+        template = description or self.settings.get("restore_point_description") or "Faster PC - {date}"
+        text = str(template).format(date=datetime.now().strftime("%Y-%m-%d %H:%M"))
+        script = (
+            "Checkpoint-Computer -Description '" + _ps_escape(text) + "' "
+            "-RestorePointType 'MODIFY_SETTINGS'"
         )
-        code, out, err = self._run(["powershell", "-NoProfile", "-Command", ps_cmd])
-
-        if code == 0:
-            logger.info(f"Restore point created: {desc}")
-            return RepairResult(True, "تم إنشاء نقطة استعادة بنجاح.", out)
-
-        # سبب شائع للفشل: System Restore معطّل على القرص، أو تم إنشاء نقطة
-        # قبل أقل من 24 ساعة (ويندوز يمنع التكرار بهذا الوقت افتراضيًا).
-        logger.error(f"Restore point failed: {err or out}")
-        return RepairResult(
-            False,
-            "تعذر إنشاء نقطة استعادة. تأكد أن System Restore مفعّل لهذا القرص "
-            "(Control Panel > System Protection)، أو أنه لم يمر وقت قصير جدًا منذ آخر نقطة.",
-            err or out,
+        result = run_silent(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", script], timeout=600
         )
+        if result.ok:
+            return ActionResult(True, f"تم إنشاء نقطة استعادة: {text}")
+        details = result.output
+        hint = ""
+        if "disabled" in details.lower() or "معطل" in details:
+            hint = " تأكد أن حماية النظام (System Protection) مفعّلة على قرص النظام."
+        elif "1440" in details or "24" in details:
+            hint = " ويندوز يمنع إنشاء نقطة استعادة أكثر من مرة كل 24 ساعة افتراضيًا."
+        return ActionResult(False, "تعذر إنشاء نقطة الاستعادة." + hint, details=details)
 
-    def run_sfc(self) -> RepairResult:
-        """فحص وإصلاح ملفات النظام التالفة (System File Checker)."""
-        guard = self._require_admin("فحص ملفات النظام (SFC)")
+    def run_sfc(self) -> ActionResult:
+        """فحص وإصلاح ملفات النظام (System File Checker)."""
+        guard = self._require_windows("فحص SFC") or self._require_admin("فحص SFC")
         if guard:
             return guard
+        if self._test_mode():
+            return ActionResult(True, "[وضع المعاينة] كان سيتم تشغيل فحص SFC.")
 
-        logger.info("Running SFC /scannow (this can take several minutes)...")
-        code, out, err = self._run(["sfc", "/scannow"], timeout=1800)
-
-        if code == 0:
-            return RepairResult(True, "SFC اكتمل: لم يتم العثور على انتهاكات أو تم إصلاحها.", out)
-        return RepairResult(False, "SFC اكتمل مع مشاكل — راجع التفاصيل.", out or err)
-
-    def run_dism(self) -> RepairResult:
-        """إصلاح صورة نظام ويندوز (DISM RestoreHealth)."""
-        guard = self._require_admin("إصلاح صورة النظام (DISM)")
-        if guard:
-            return guard
-
-        logger.info("Running DISM /RestoreHealth (this can take a while and needs internet)...")
-        code, out, err = self._run(
-            ["DISM", "/Online", "/Cleanup-Image", "/RestoreHealth"], timeout=2400
-        )
-
-        if code == 0:
-            return RepairResult(True, "DISM اكتمل بنجاح.", out)
-        return RepairResult(False, "DISM واجه مشكلة — راجع التفاصيل.", out or err)
-
-    def flush_dns(self) -> RepairResult:
-        """تفريغ ذاكرة DNS المؤقتة - يحل مشاكل شائعة بالاتصال بالمواقع."""
-        code, out, err = self._run(["ipconfig", "/flushdns"], timeout=30)
-        if code == 0:
-            return RepairResult(True, "تم تفريغ ذاكرة DNS المؤقتة.", out)
-        return RepairResult(False, "تعذر تفريغ ذاكرة DNS.", err or out)
-
-    def scan_disk(self, drive: str = "C:") -> RepairResult:
-        """
-        فحص القرص للأخطاء بدون تعطيل (read-only scan عبر /scan)، على عكس
-        /f أو /r اللي تحتاج قفل القرص وربما إعادة تشغيل — هذا آمن للتشغيل
-        بأي وقت بدون مقاطعة عمل المستخدم.
-        """
-        drive = drive.rstrip("\\") if drive else "C:"
-        code, out, err = self._run(["chkdsk", drive, "/scan"], timeout=1800)
-        # chkdsk يرجع رموز مختلفة حتى لو النتيجة سليمة، فنعتمد على النص
-        combined = (out or "") + (err or "")
-        found_issues = "found problems" in combined.lower() or "found errors" in combined.lower()
-        if found_issues:
-            return RepairResult(
+        logger.info("Running SFC /scannow (قد يستغرق عدة دقائق)...")
+        result = run_silent(["sfc", "/scannow"], timeout=3600)
+        output = result.output
+        lower = output.lower()
+        if "did not find any integrity violations" in lower or "لم تجد أي انتهاكات" in output:
+            return ActionResult(True, "SFC: ملفات النظام سليمة، لا توجد مشاكل.", details=output)
+        if "successfully repaired" in lower or "تم الإصلاح بنجاح" in output:
+            return ActionResult(True, "SFC: وُجدت ملفات تالفة وتم إصلاحها بنجاح.", details=output)
+        if "unable to fix" in lower or "تعذر الإصلاح" in output:
+            return ActionResult(
                 False,
-                f"تم العثور على مشاكل بالقرص {drive}. شغّل 'chkdsk {drive} /f' من "
-                "موجّه أوامر بصلاحيات مدير (سيتطلب إعادة تشغيل).",
-                combined,
+                "SFC: وُجدت ملفات تالفة ولم يتمكن من إصلاحها — جرّب DISM بعدها وأعد تشغيل الجهاز.",
+                details=output,
             )
-        return RepairResult(True, f"لم يتم العثور على مشاكل بالقرص {drive}.", combined)
+        if result.returncode == 0:
+            return ActionResult(True, "SFC اكتمل بنجاح.", details=output)
+        return ActionResult(False, "SFC انتهى بحالة غير متوقعة — راجع التفاصيل.", details=output)
+
+    def run_dism(self) -> ActionResult:
+        """إصلاح صورة ويندوز (DISM /RestoreHealth) — تتطلب إنترنت غالبًا."""
+        guard = self._require_windows("إصلاح DISM") or self._require_admin("إصلاح DISM")
+        if guard:
+            return guard
+        if self._test_mode():
+            return ActionResult(True, "[وضع المعاينة] كان سيتم تشغيل DISM.")
+
+        logger.info("Running DISM /RestoreHealth (قد يستغرق وقتًا طويلاً)...")
+        result = run_silent(["DISM", "/Online", "/Cleanup-Image", "/RestoreHealth"], timeout=5400)
+        output = result.output
+        if result.ok or "The operation completed successfully" in output or "تمت العملية بنجاح" in output:
+            return ActionResult(True, "DISM: تم إصلاح صورة النظام بنجاح.", details=output)
+        if "0x800f081f" in output:
+            return ActionResult(
+                False,
+                "DISM فشل بخطأ 0x800f081f: يحتاج ملفات المصدر أو اتصال إنترنت سليم.",
+                details=output,
+            )
+        return ActionResult(False, "DISM واجه مشكلة — راجع التفاصيل.", details=output)
+
+    def flush_dns(self) -> ActionResult:
+        """تفريغ ذاكرة DNS المؤقتة — يحل مشاكل تصفح شائعة."""
+        guard = self._require_windows("تفريغ ذاكرة DNS")
+        if guard:
+            return guard
+        if self._test_mode():
+            return ActionResult(True, "[وضع المعاينة] كان سيتم تفريغ ذاكرة DNS.")
+        result = run_silent(["ipconfig", "/flushdns"], timeout=60)
+        if result.ok:
+            return ActionResult(True, "تم تفريغ ذاكرة DNS المؤقتة.")
+        return ActionResult(False, "تعذر تفريغ ذاكرة DNS.", details=result.output)
+
+    def reset_network_stack(self) -> ActionResult:
+        """إعادة تعيين مكدس الشبكة (winsock + ip) — حل قوي لمشاكل الاتصال."""
+        guard = self._require_windows("إعادة تعيين الشبكة") or self._require_admin("إعادة تعيين الشبكة")
+        if guard:
+            return guard
+        if self._test_mode():
+            return ActionResult(True, "[وضع المعاينة] كان سيتم إعادة تعيين مكدس الشبكة.")
+        results = []
+        for cmd in (["netsh", "winsock", "reset"], ["netsh", "int", "ip", "reset"]):
+            results.append(run_silent(cmd, timeout=120))
+        if any(r.ok for r in results):
+            return ActionResult(
+                True,
+                "تمت إعادة تعيين مكدس الشبكة. يُنصح بإعادة تشغيل الجهاز.",
+                needs_restart=True,
+            )
+        return ActionResult(False, "تعذرت إعادة تعيين الشبكة.", details="\n".join(r.output for r in results))
+
+    def scan_disk(self, drive: str = "C:") -> ActionResult:
+        """فحص القرص للأخطاء بدون تعطيل (/scan — لا يقفل القرص ولا يقطع عملك)."""
+        guard = self._require_windows("فحص القرص")
+        if guard:
+            return guard
+        letter = (drive or "C:").rstrip("\\/")
+        if not letter.endswith(":"):
+            letter += ":"
+        if self._test_mode():
+            return ActionResult(True, f"[وضع المعاينة] كان سيتم فحص القرص {letter}.")
+        result = run_silent(["chkdsk", letter, "/scan"], timeout=3600)
+        output = result.output
+        found = any(
+            phrase in output.lower()
+            for phrase in ("found problems", "found errors", "windows has scanned")
+        )
+        if found and ("no problems" in output.lower() or "لم يتم العثور على مشاكل" in output):
+            found = False
+        if found:
+            return ActionResult(
+                False,
+                f"وُجدت مشاكل على القرص {letter}. شغّل الإصلاح من موجّه الأوامر كمسؤول: chkdsk {letter} /f",
+                details=output,
+            )
+        return ActionResult(True, f"القرص {letter} سليم — لم تُوجد أخطاء.", details=output)
+
+    # ------------------------------------------------------------------
+    def quick_health_checks(self) -> list[ActionResult]:
+        """فحوصات سريعة آمنة لعرض ملخص الحالة (بدون تعديل أي شيء)."""
+        checks: list[ActionResult] = []
+        checks.append(ActionResult(
+            True, "صلاحيات المدير متاحة." if is_admin() else "البرنامج يعمل بدون صلاحيات مدير.",
+        ))
+        return checks
+
+
+__all__ = ["SystemRepair", "is_admin_user"]
