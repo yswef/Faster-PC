@@ -1,8 +1,8 @@
 import hashlib
 import hmac
+import logging
 import os
 import re
-import logging
 from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
@@ -94,6 +94,44 @@ class AuthManager:
                     return {"username": u["username"], "role": u["role"]}
                 return None
         return None
+    # ------------------------------------------------------------------
+    # إدارة المستخدمين (تُستخدم من الواجهة)
+    # ------------------------------------------------------------------
+    def list_users(self) -> list[dict]:
+        """قائمة المستخدمين بدون أي بيانات حساسة (بدون salt/هاش)."""
+        return [
+            {
+                "username": u.get("username", ""),
+                "role": u.get("role", "user"),
+                "created_at": u.get("created_at", ""),
+            }
+            for u in (self.settings.get("users") or [])
+        ]
+
+    def is_admin(self, username: str) -> bool:
+        for user in (self.settings.get("users") or []):
+            if user.get("username", "").lower() == (username or "").lower():
+                return user.get("role") == "admin"
+        return False
+
+    def delete_user(self, username: str) -> bool:
+        """
+        حذف مستخدم. يُرفض الحذف إذا كان آخر حساب مدير في البرنامج
+        (منعًا لقفل البرنامج بلا أي مدير).
+        """
+        users = list(self.settings.get("users") or [])
+        target = next((u for u in users if u.get("username", "").lower() == (username or "").lower()), None)
+        if target is None:
+            return False
+        if target.get("role") == "admin":
+            admins = [u for u in users if u.get("role") == "admin"]
+            if len(admins) <= 1:
+                logger.warning("Refused to delete the last admin account: %s", username)
+                return False
+        users = [u for u in users if u is not target]
+        self.settings.set("users", users)
+        logger.info("User deleted: %s", username)
+        return True
 
     def change_password(self, username: str, old_password: str, new_password: str) -> bool:
         if self.authenticate(username, old_password) is None:
