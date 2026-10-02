@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+*.egg-info/
 .venv/
 venv/
 env/
@@ -10,7 +11,32 @@ ENV/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+htmlcov/
 
+# PyInstaller / build artifacts
+build/
+dist/
+*.manifest
+__pyinstaller/
+
+# بيانات التشغيل المحلية (تُنشأ تلقائيًا وقت التشغيل)
+config.json
+config.json.bak
+config.json.corrupt.bak
+changes.json
+logs/
+portable.flag
+
+# معاينات الواجهة (أداة المطور)
+.preview/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+desktop.ini
 
 # API keys and secrets
 *.env
