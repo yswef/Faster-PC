@@ -107,7 +107,15 @@ python main.py
 ### بناء نسخة تنفيذية
 
 **الطريقة الأسهل (ويندوز):** دبل-كلك على `build_exe.bat` → ينتج `dist\FasterPC.exe`
-و `dist\install.bat`.
+مع ملفات التثبيت.
+
+للتثبيت بعد البناء:
+- `dist\install.vbs` — **تثبيت صامت تمامًا بدون أي نافذة** (الأفضل).
+- `dist\install.bat` — تثبيت مع رسائل تقدم واضحة في نافذة الأوامر.
+
+وكلاهما ينسخ البرنامج إلى `%LOCALAPPDATA%\Programs\Faster PC`، وينشئ اختصار سطح
+المكتب وقائمة ابدأ بالأيقونة الرسمية، ويشغّل البرنامج لإكمال الإعداد الأولي.
+بديل ثالث: شغّل `FasterPC.exe` مباشرة، فمعالج الإعداد ينشئ الاختصارات بنفسه.
 
 **يدويًا:**
 
@@ -116,8 +124,7 @@ pip install -r requirements-dev.txt
 pyinstaller --noconfirm --clean faster_pc.spec
 ```
 
-ثم للتثبيت على الجهاز: شغّل `dist\install.bat` (أو `packaging\install.bat`) فينسخ البرنامج
-إلى `%LOCALAPPDATA%\Programs\Faster PC` وينشئ الاختصارات بالصورة الرسمية.
+ثم للتثبيت على الجهاز: شغّل `dist\install.vbs` (صامت) أو `dist\install.bat`.
 
 ملاحظات:
 - بعض برامج الحماية تعطي إنذارًا كاذبًا ضد أي ملف PyInstaller غير موقّع. البرنامج يتضمن
@@ -293,8 +300,10 @@ pip install -r requirements-dev.txt
 pyinstaller --noconfirm --clean faster_pc.spec
 ```
 
-On Windows you can simply double-click `build_exe.bat`, then run `dist\install.bat` to
-install with desktop/Start Menu shortcuts.
+On Windows you can simply double-click `build_exe.bat`, then run `dist\install.vbs` for a
+completely silent install (or `dist\install.bat` to see progress). Both copy the app to
+`%LOCALAPPDATA%\Programs\Faster PC` and create desktop/Start Menu shortcuts with the
+official icon.
 
 ### Notes
 

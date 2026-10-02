@@ -46,9 +46,11 @@ function New-AppShortcut {
     if ($dir -and -not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
     $shell = New-Object -ComObject WScript.Shell
     $shortcut = $shell.CreateShortcut($ShortcutPath)
+    $workDirFinal = Split-Path -Parent $Target
+    if ($WorkDir) { $workDirFinal = $WorkDir }
     $shortcut.TargetPath = $Target
     $shortcut.Arguments = $Arguments
-    $shortcut.WorkingDirectory = if ($WorkDir) { $WorkDir } else { Split-Path -Parent $Target }
+    $shortcut.WorkingDirectory = $workDirFinal
     $shortcut.IconLocation = "$iconPath,0"
     $shortcut.Description = 'Faster PC — صيانة وتسريع ويندوز'
     $shortcut.Save()
@@ -72,7 +74,11 @@ if ($RunAtStartup) {
     if (-not $Quiet) { Write-Host "✔ التشغيل التلقائي مع ويندوز" }
 }
 
-# اختصار إلغاء التثبيت
+# اختصار إلغاء التثبيت (ننسخ السكربت المرفق، أو نكتب بديلًا بسيطًا)
+$uninstallPs1Source = Join-Path $SourceDir 'uninstall.ps1'
+if (Test-Path $uninstallPs1Source) {
+    Copy-Item $uninstallPs1Source -Destination (Join-Path $installDir 'uninstall.ps1') -Force
+}
 $uninstaller = Join-Path $installDir 'uninstall.bat'
 if (-not (Test-Path $uninstaller)) {
     @"

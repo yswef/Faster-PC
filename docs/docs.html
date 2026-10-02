@@ -274,8 +274,9 @@ QT_QPA_PLATFORM=offscreen python tools/ui_preview.py   # tab screenshots</pre>
 
     <h3 data-ar="البناء والنشر" data-en="Build & release"></h3>
     <pre>pyinstaller --noconfirm --clean faster_pc.spec   # -> dist/FasterPC.exe
-packaging/install.bat                            # install + shortcuts
-packaging/uninstall.bat                          # uninstall</pre>
+packaging/install.vbs                            # تثبيت صامت تمامًا (بدون نوافذ)
+packaging/install.bat                            # تثبيت مع رسائل تقدم
+packaging/uninstall.vbs                          # إلغاء تثبيت صامت</pre>
     <p data-ar="مواصفات البناء: console=False (بدون نافذة)، uac_admin=True (طلب صلاحيات المدير)، أيقونة رسمية، معلومات إصدار في خصائص الملف، واستثناء وحدات Qt غير المستخدمة لتصغير الحجم."
        data-en="Spec highlights: console=False (no window), uac_admin=True, official icon, file version info, and unused Qt modules excluded to shrink size."></p>
 
