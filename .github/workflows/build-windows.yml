@@ -9,6 +9,9 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write   # مطلوب لإرفاق ملف البناء بالإصدار (release) عند إنشاء tag
+
 jobs:
   build:
     runs-on: windows-latest
