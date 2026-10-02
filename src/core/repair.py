@@ -12,7 +12,7 @@ import logging
 from datetime import datetime
 
 from src.core.results import ActionResult
-from src.utils.winapi import IS_WINDOWS, is_admin, run_silent
+from src.utils.winapi import IS_WINDOWS, is_admin, run_powershell, run_silent
 
 logger = logging.getLogger(__name__)
 
@@ -66,9 +66,7 @@ class SystemRepair:
             "Checkpoint-Computer -Description '" + _ps_escape(text) + "' "
             "-RestorePointType 'MODIFY_SETTINGS'"
         )
-        result = run_silent(
-            ["powershell", "-NoProfile", "-NonInteractive", "-Command", script], timeout=600
-        )
+        result = run_powershell(script, timeout=600)
         if result.ok:
             return ActionResult(True, f"تم إنشاء نقطة استعادة: {text}")
         details = result.output

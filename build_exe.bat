@@ -37,7 +37,11 @@ echo [3/4] بناء البرنامج (بدون نوافذ إضافية)...
 
 echo [4/4] تجهيز ملفات التثبيت...
 copy /y "packaging\install.bat" "dist\install.bat" >nul 2>nul
+copy /y "packaging\install.ps1" "dist\install.ps1" >nul 2>nul
 copy /y "packaging\uninstall.bat" "dist\uninstall.bat" >nul 2>nul
+copy /y "packaging\uninstall.ps1" "dist\uninstall.ps1" >nul 2>nul
+copy /y "packaging\install.vbs" "dist\install.vbs" >nul 2>nul
+copy /y "packaging\uninstall.vbs" "dist\uninstall.vbs" >nul 2>nul
 if exist "LICENSE" copy /y "LICENSE" "dist\LICENSE" >nul 2>nul
 
 echo.
@@ -45,6 +49,7 @@ echo ============================================================
 echo  تم البناء بنجاح:
 echo    dist\FasterPC.exe      (البرنامج — يعمل صامتًا وبدون cmd)
 echo    dist\install.bat       (يثبّت البرنامج + اختصار سطح المكتب)
+echo    dist\install.vbs       (تثبيت صامت تمامًا بدون أي نافذة)
 echo ============================================================
 echo.
 pause

@@ -11,11 +11,18 @@
     pyinstaller --noconfirm --clean faster_pc.spec
 """
 
+import sys
 from pathlib import Path
 
-from PyInstaller.utils.hooks import collect_data_files
-
 ROOT = Path(SPECPATH)
+# ضمان أن حزمة src قابلة للاستيراد وقت البناء (لجمع ملفات البيانات)
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+try:
+    from PyInstaller.utils.hooks import collect_data_files
+except Exception:  # pragma: no cover
+    collect_data_files = None
 
 datas = [
     (str(ROOT / "assets" / "app_icon.ico"), "assets"),
@@ -25,8 +32,12 @@ datas = [
     (str(ROOT / "docs" / "docs.html"), "docs"),
     (str(ROOT / "LICENSE"), "."),
 ]
-# أي ملفات بيانات إضافية داخل الحزم (احتياط مستقبلي)
-datas += collect_data_files("src", includes=["**/*.qss", "**/*.html"])
+# أي ملفات .qss إضافية داخل الحزمة (احتياط مستقبلي) — لا نُفشل البناء لو فشل الجمع
+if collect_data_files is not None:
+    try:
+        datas += collect_data_files("src", includes=["**/*.qss"])
+    except Exception as exc:  # pragma: no cover
+        print(f"[spec] collect_data_files skipped: {exc}")
 
 hiddenimports = [
     "PySide6.QtNetwork",
@@ -45,7 +56,7 @@ excludes = [
     "PySide6.QtWebSockets", "PySide6.QtWebChannel", "PySide6.QtRemoteObjects",
     "PySide6.QtScxml", "PySide6.QtSensors", "PySide6.QtSpatialAudio",
     "PySide6.QtTextToSpeech", "PySide6.QtUiTools", "PySide6.QtVirtualKeyboard",
-    "matplotlib", "numpy", "pandas", "tkinter", "unittest",
+    "matplotlib", "numpy", "pandas", "tkinter",
 ]
 
 icon_path = str(ROOT / "assets" / "app_icon.ico")

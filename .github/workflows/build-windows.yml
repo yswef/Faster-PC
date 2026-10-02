@@ -1,7 +1,7 @@
 name: Build Windows executable
 
-# يبني FasterPC.exe على ويندوز ويرفعه كمخرج يمكن تنزيله وتشغيله مباشرة.
-# يعمل يدويًا من تبويب Actions، أو تلقائيًا عند إنشاء إصدار (tag يبدأ بـ v).
+# يبني FasterPC.exe على ويندوز ويرفعه كمخرج قابل للتنزيل والتشغيل مباشرة.
+# يعمل يدويًا من تبويب Actions (Run workflow)، أو تلقائيًا عند إنشاء إصدار (tag يبدأ بـ v).
 
 on:
   workflow_dispatch:
@@ -40,20 +40,25 @@ jobs:
         run: |
           copy packaging\install.bat dist\install.bat
           copy packaging\install.ps1 dist\install.ps1
+          copy packaging\install.vbs dist\install.vbs
           copy packaging\uninstall.bat dist\uninstall.bat
           copy packaging\uninstall.ps1 dist\uninstall.ps1
+          copy packaging\uninstall.vbs dist\uninstall.vbs
           copy LICENSE dist\LICENSE
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: FasterPC-windows
+          if-no-files-found: error
           path: |
             dist/FasterPC.exe
             dist/install.bat
             dist/install.ps1
+            dist/install.vbs
             dist/uninstall.bat
             dist/uninstall.ps1
+            dist/uninstall.vbs
             dist/LICENSE
 
       - name: Attach build to release
@@ -64,5 +69,7 @@ jobs:
             dist/FasterPC.exe
             dist/install.bat
             dist/install.ps1
+            dist/install.vbs
             dist/uninstall.bat
             dist/uninstall.ps1
+            dist/uninstall.vbs
