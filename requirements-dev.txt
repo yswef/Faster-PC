@@ -1,0 +1,6 @@
+# متطلبات البناء والاختبار (لا يحتاجها المستخدم العادي)
+-r requirements.txt
+pyinstaller>=6.0
+pytest>=8.0
+ruff>=0.6
+pillow>=10.0
