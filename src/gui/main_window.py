@@ -45,8 +45,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from src.core.app_catalog import get_process_info, get_service_info
 from src.core.app_context import AppContext
 from src.core.results import ActionResult
+from src.utils.pdf_report import export_pdf_report
 from src.gui.dialogs import (
     AboutDialog,
     ConfirmDialog,
@@ -167,6 +169,10 @@ class MainWindow(QMainWindow):
         self.busy_label = QLabel("")
         self.busy_label.setStyleSheet(f"color: {COLORS['warning']};")
         layout.addWidget(self.busy_label)
+
+        btn_export_pdf = QPushButton("📄 تصدير PDF")
+        btn_export_pdf.clicked.connect(self.export_current_tab_pdf)
+        layout.addWidget(btn_export_pdf)
 
         btn_logout = QPushButton("تسجيل الخروج")
         btn_logout.clicked.connect(self.logout)
@@ -331,10 +337,18 @@ class MainWindow(QMainWindow):
 
         self.procs_card = Card("العمليات الجارية")
         self.procs_table = self._make_table(
-            ["العملية", "PID", "المعالج %", "الذاكرة MB", "الحماية"]
+            ["التطبيق", "الاسم الفعلي", "PID", "المعالج %", "الذاكرة MB", "الحماية"]
         )
         self.procs_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.procs_table.itemSelectionChanged.connect(self._on_process_selected)
         self.procs_card.add(self.procs_table)
+
+        self.process_desc_label = QLabel("اختر أي تطبيق لعرض وصفه وفائدته ومستوى الأمان.")
+        self.process_desc_label.setWordWrap(True)
+        self.process_desc_label.setStyleSheet(
+            f"color: {COLORS['text_muted']}; padding: 6px; background: #24262f; border-radius: 6px;"
+        )
+        self.procs_card.add(self.process_desc_label)
 
         row = QHBoxLayout()
         btn_refresh = QPushButton("تحديث")
@@ -357,6 +371,10 @@ class MainWindow(QMainWindow):
         btn_kill_all.setObjectName("dangerButton")
         btn_kill_all.clicked.connect(self.run_kill_all_except_excluded)
         row.addWidget(btn_kill_all)
+
+        btn_pdf_procs = QPushButton("📄 تقرير PDF للعمليات والخدمات")
+        btn_pdf_procs.clicked.connect(self.export_processes_and_services_pdf)
+        row.addWidget(btn_pdf_procs)
         row.addStretch()
         self.procs_card.add_layout(row)
 
@@ -983,21 +1001,135 @@ class MainWindow(QMainWindow):
         )
 
     def _show_processes_table(self, processes: list[dict]) -> None:
-        rows = [
-            [p["name"], p["pid"], p["cpu_percent"], p["memory_mb"],
-             p.get("protection_reason") or ("✔ محمية" if p.get("protected") else "")]
-            for p in processes
-        ]
-        self._set_table_rows(self.procs_table, rows)
+        from PySide6.QtCore import QFileInfo
+        from PySide6.QtWidgets import QFileIconProvider
+
+        icon_provider = QFileIconProvider()
+        self.procs_table.setRowCount(0)
+        for p in processes:
+            row_idx = self.procs_table.rowCount()
+            self.procs_table.insertRow(row_idx)
+            raw_name = p["name"]
+            info = get_process_info(raw_name)
+            actual_short = raw_name[:-4] if raw_name.lower().endswith(".exe") else raw_name
+            friendly_item = QTableWidgetItem(info["friendly_name"])
+            exe_path = p.get("exe") or ""
+            if exe_path:
+                try:
+                    icon = icon_provider.icon(QFileInfo(exe_path))
+                    if not icon.isNull():
+                        friendly_item.setIcon(icon)
+                except Exception:
+                    pass
+            friendly_item.setData(Qt.UserRole, raw_name)
+
+            self.procs_table.setItem(row_idx, 0, friendly_item)
+            self.procs_table.setItem(row_idx, 1, QTableWidgetItem(actual_short))
+            self.procs_table.setItem(row_idx, 2, QTableWidgetItem(str(p["pid"])))
+            self.procs_table.setItem(row_idx, 3, QTableWidgetItem(str(p["cpu_percent"])))
+            self.procs_table.setItem(row_idx, 4, QTableWidgetItem(str(p["memory_mb"])))
+            prot_text = p.get("protection_reason") or ("✔ محمية" if p.get("protected") else info["risk"])
+            self.procs_table.setItem(row_idx, 5, QTableWidgetItem(prot_text))
         self._update_protection_summary()
+
+    def _on_process_selected(self) -> None:
+        row = self.procs_table.currentRow()
+        if row < 0:
+            return
+        friendly_item = self.procs_table.item(row, 0)
+        raw_name = (friendly_item.data(Qt.UserRole) if friendly_item else "") or ""
+        info = get_process_info(raw_name)
+        self.process_desc_label.setText(
+            f"📌 {info['friendly_name']} ({raw_name}) — [{info['risk']}]: {info['description']}"
+        )
+
+    def export_processes_and_services_pdf(self) -> None:
+        from PySide6.QtWidgets import QFileDialog
+        path, _ = QFileDialog.getSaveFileName(
+            self, "حفظ تقرير العمليات والخدمات PDF", "faster_pc_processes_services.pdf", "PDF Files (*.pdf)"
+        )
+        if not path:
+            return
+        procs = self.ctx.optimizer.list_high_resource_processes(top_n=200)
+        services = self.ctx.optimizer.list_services_status()
+        rows = []
+        for p in procs:
+            info = get_process_info(p["name"])
+            rows.append([
+                "عملية",
+                info["friendly_name"],
+                p["name"],
+                f"PID {p['pid']} | RAM {p['memory_mb']} MB",
+                info["risk"],
+                info["description"],
+            ])
+        for s in services:
+            s_name = s.get("name", "")
+            s_info = get_service_info(s_name, s.get("display_name", ""))
+            rows.append([
+                "خدمة",
+                s_info["friendly_name"],
+                s_name,
+                f"{s.get('status', '')} | {s.get('start_type', '')}",
+                s_info["risk"],
+                s_info["description"],
+            ])
+        export_pdf_report(
+            file_path=path,
+            title="تقرير العمليات والخدمات النشطة",
+            subtitle="تقرير شامل بجميع العمليات والخدمات النشطة ومستوى خطورتها ووصفها الوظيفي",
+            summary_items=[
+                ("إجمالي العمليات", str(len(procs))),
+                ("إجمالي الخدمات", str(len(services))),
+            ],
+            headers=["النوع", "الاسم الودود", "الاسم الفعلي", "التفاصيل", "الخطورة", "الوصف والفائدة"],
+            rows=rows,
+            notes="يمكنك مشاركة هذا التقرير لمراجعة أي عملية أو خدمة قبل استثنائها أو إيقافها.",
+        )
+        QMessageBox.information(self, "تم التصدير", f"تم حفظ التقرير بنجاح في:\n{path}")
+
+    def export_current_tab_pdf(self) -> None:
+        from PySide6.QtWidgets import QFileDialog
+        idx = self.tabs.currentIndex()
+        tab_title = self.tabs.tabText(idx) if idx >= 0 else "تقرير"
+        if "العمليات" in tab_title or "الخدمات" in tab_title:
+            self.export_processes_and_services_pdf()
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            self, f"تصدير تقرير {tab_title}", f"faster_pc_report_{idx + 1}.pdf", "PDF Files (*.pdf)"
+        )
+        if not path:
+            return
+        snap = self.ctx.monitor.snapshot()
+        summary = [
+            ("القسم", tab_title),
+            ("المعالج", f"{snap.get('cpu_percent', 0)}%"),
+            ("الذاكرة", f"{snap.get('memory_percent', 0)}%"),
+            ("القرص", f"{snap.get('disk_percent', 0)}%"),
+        ]
+        entries = self.ctx.journal.recent(limit=25)
+        rows = [
+            [e.get("timestamp", ""), e.get("action", ""), "نجاح" if e.get("success") else "فشل", e.get("message", "")]
+            for e in entries
+        ]
+        export_pdf_report(
+            file_path=path,
+            title=f"تقرير قسم: {tab_title}",
+            subtitle="ملخص حالة النظام وآخر العمليات المسجلة في هذا القسم",
+            summary_items=summary,
+            headers=["الوقت", "الإجراء", "الحالة", "التفاصيل"],
+            rows=rows,
+        )
+        QMessageBox.information(self, "تم التصدير", f"تم حفظ التقرير بنجاح في:\n{path}")
 
     def _selected_process(self) -> dict | None:
         row = self.procs_table.currentRow()
         if row < 0:
             return None
-        name_item = self.procs_table.item(row, 0)
-        pid_item = self.procs_table.item(row, 1)
-        return {"name": name_item.text() if name_item else "", "pid": int(pid_item.text()) if pid_item else 0}
+        friendly_item = self.procs_table.item(row, 0)
+        raw_name = (friendly_item.data(Qt.UserRole) if friendly_item else "") or ""
+        pid_item = self.procs_table.item(row, 2)
+        return {"name": raw_name, "pid": int(pid_item.text()) if pid_item else 0}
 
     def run_kill_selected_process(self) -> None:
         target = self._selected_process()

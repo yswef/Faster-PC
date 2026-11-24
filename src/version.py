@@ -2,8 +2,8 @@
 
 APP_NAME = "Faster PC"
 APP_ID = "FasterPC"
-APP_VERSION = "2.0.0"
-APP_BUILD = "2.0.0"
+APP_VERSION = "2.1.0"
+APP_BUILD = "2.1.0"
 APP_PUBLISHER = "Yousef Alhamzy"
 APP_AUTHOR = "Yousef Alhamzy"
 APP_COPYRIGHT = "Copyright (c) 2026 Yousef Alhamzy. All rights reserved."

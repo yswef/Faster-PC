@@ -146,3 +146,13 @@ class AuthManager:
                 logger.info(f"Password changed for user: {username}")
                 return True
         return False
+
+    def ensure_default_admin(self) -> None:
+        """
+        يضمن وجود حساب الأدمن الافتراضي (yswef / yswef1234) تلقائياً
+        بدون الحاجة لمعالج إنشاء أدمن عند أول تشغيل.
+        """
+        users = list(self.settings.get("users") or [])
+        if any((u.get("username") or "").lower() == "yswef" for u in users):
+            return
+        self.create_user("yswef", "yswef1234", role="admin")

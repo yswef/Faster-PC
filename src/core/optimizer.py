@@ -199,10 +199,10 @@ class SystemOptimizer:
     def _undo_process_sweep(self, entry: dict) -> tuple[bool, str]:
         return False, "إنهاء العمليات غير قابل للتراجع — البرامج المُنهية تحتاج إعادة تشغيل يدويًا."
 
-    def list_high_resource_processes(self, top_n: int = 10) -> list[dict]:
-        """أعلى العمليات استهلاكًا للذاكرة والمعالج (مع بيان إن كانت محمية)."""
+    def list_high_resource_processes(self, top_n: int = 30) -> list[dict]:
+        """أعلى العمليات استهلاكًا للذاكرة والمعالج (مع بيان إن كانت محمية ومسارها)."""
         results = []
-        for proc in psutil.process_iter(["pid", "name", "memory_info", "cpu_percent"]):
+        for proc in psutil.process_iter(["pid", "name", "exe", "memory_info", "cpu_percent"]):
             try:
                 info = proc.info
                 mem = info.get("memory_info")
@@ -211,6 +211,7 @@ class SystemOptimizer:
                 results.append({
                     "pid": info["pid"],
                     "name": name,
+                    "exe": info.get("exe") or "",
                     "memory_mb": round((mem.rss if mem else 0) / (1024 ** 2), 1),
                     "cpu_percent": round(info.get("cpu_percent") or 0.0, 1),
                     "protected": not allowed,

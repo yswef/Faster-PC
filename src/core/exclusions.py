@@ -23,13 +23,20 @@ import psutil
 
 logger = logging.getLogger(__name__)
 
-# عمليات لا يمكن إنهاؤها من هذا البرنامج نهائيًا (خطر توقف النظام فورًا).
+# عمليات لا يمكن إنهاؤها من هذا البرنامج نهائيًا (خطر توقف النظام أو شاشة زرقاء فورًا).
 HARD_PROTECTED_PROCESSES = {
     "system", "system idle process", "registry", "secure system",
-    "memory compression", "idle",
+    "memory compression", "idle", "memcompression", "vmmem",
     "smss.exe", "csrss.exe", "wininit.exe", "winlogon.exe",
     "services.exe", "lsass.exe", "dwm.exe", "fontdrvhost.exe",
     "logonui.exe", "lsaiso.exe", "sgrmbroker.exe",
+    "svchost.exe", "sihost.exe", "taskhostw.exe", "audiodg.exe",
+    "conhost.exe", "dllhost.exe", "wmiprvse.exe", "dashost.exe",
+    "wudfhost.exe", "msmpeng.exe", "nissrv.exe", "securityhealthservice.exe",
+    "searchindexer.exe", "spoolsv.exe", "sppsvc.exe", "ctfmon.exe",
+    "runtimebroker.exe", "shellexperiencehost.exe", "startmenuexperiencehost.exe",
+    "textinputhost.exe", "applicationframehost.exe", "smartscreen.exe",
+    "vssvc.exe", "vds.exe", "trustedinstaller.exe", "tiworker.exe",
 }
 
 # خدمات لا يُسمح بإيقافها نهائيًا (توقفها يعطل النظام أو شبكته/صوته فورًا).
