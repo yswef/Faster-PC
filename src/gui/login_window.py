@@ -76,6 +76,10 @@ class LoginWindow(QDialog):
         self.submit_btn.clicked.connect(self.handle_submit)
         layout.addWidget(self.submit_btn)
 
+        self.register_btn = QPushButton("إنشاء حساب جديد")
+        self.register_btn.clicked.connect(self.handle_register)
+        layout.addWidget(self.register_btn)
+
         self.password_input.returnPressed.connect(self.handle_submit)
         self.username_input.returnPressed.connect(self.handle_submit)
         self.password_input.setFocus()
@@ -137,6 +141,58 @@ class LoginWindow(QDialog):
         timer.timeout.connect(_tick)
         timer.start(1000)
         self.error_label.setText(f"محاولات كثيرة خاطئة. أعد المحاولة بعد {remaining} ثانية.")
+
+    def handle_register(self) -> None:
+        from PySide6.QtWidgets import QDialogButtonBox, QMessageBox
+
+        dlg = QDialog(self)
+        dlg.setWindowTitle("إنشاء حساب جديد")
+        dlg.setMinimumWidth(340)
+        v = QVBoxLayout(dlg)
+        form = QFormLayout()
+        user_edit = QLineEdit()
+        pass_edit = QLineEdit()
+        pass_edit.setEchoMode(QLineEdit.Password)
+        confirm_edit = QLineEdit()
+        confirm_edit.setEchoMode(QLineEdit.Password)
+        form.addRow("اسم المستخدم:", user_edit)
+        form.addRow("كلمة المرور:", pass_edit)
+        form.addRow("تأكيد كلمة المرور:", confirm_edit)
+        v.addLayout(form)
+
+        err = QLabel("")
+        err.setStyleSheet(f"color: {COLORS['danger']};")
+        err.setWordWrap(True)
+        v.addWidget(err)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.button(QDialogButtonBox.Ok).setText("إنشاء")
+        buttons.button(QDialogButtonBox.Cancel).setText("إلغاء")
+        buttons.rejected.connect(dlg.reject)
+
+        def _create():
+            u = user_edit.text().strip()
+            p1 = pass_edit.text()
+            p2 = confirm_edit.text()
+            if not u or not p1:
+                err.setText("أدخل اسم المستخدم وكلمة المرور.")
+                return
+            if p1 != p2:
+                err.setText("كلمتا المرور غير متطابقتين.")
+                return
+            try:
+                self.auth.create_user(u, p1, role="user")
+            except AuthError as exc:
+                err.setText(str(exc))
+                return
+            QMessageBox.information(dlg, "تم", f"تم إنشاء الحساب '{u}' بنجاح. يمكنك تسجيل الدخول الآن.")
+            self.username_input.setText(u)
+            self.password_input.setText(p1)
+            dlg.accept()
+
+        buttons.accepted.connect(_create)
+        v.addWidget(buttons)
+        dlg.exec()
         logger.warning("Login temporarily locked after %s failed attempts.", MAX_ATTEMPTS)
 
 

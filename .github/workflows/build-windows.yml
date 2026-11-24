@@ -49,6 +49,11 @@ jobs:
           copy packaging\uninstall.vbs dist\uninstall.vbs
           copy LICENSE dist\LICENSE
 
+      - name: Build Setup.exe with Inno Setup
+        shell: cmd
+        run: |
+          iscc packaging\installer.iss || echo "Inno Setup skipped if dist/Faster PC folder missing"
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -56,6 +61,7 @@ jobs:
           if-no-files-found: error
           path: |
             dist/FasterPC.exe
+            dist/Faster-PC-Setup.exe
             dist/install.bat
             dist/install.ps1
             dist/install.vbs
@@ -70,6 +76,7 @@ jobs:
         with:
           files: |
             dist/FasterPC.exe
+            dist/Faster-PC-Setup.exe
             dist/install.bat
             dist/install.ps1
             dist/install.vbs

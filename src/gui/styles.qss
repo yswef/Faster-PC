@@ -74,34 +74,54 @@ QPushButton {
 
 QPushButton:hover {
     background-color: #40465c;
+    color: #ffffff;
 }
 
 QPushButton:pressed {
     background-color: #2a2c38;
+    color: #ffffff;
 }
 
 QPushButton:disabled {
     background-color: #2a2c38;
-    color: #6a6d7a;
+    color: #9a9dab;
     border-color: #2e303c;
 }
 
 QPushButton#primaryButton {
     background-color: #27ae60;
+    color: #ffffff;
     border: none;
 }
 
 QPushButton#primaryButton:hover {
     background-color: #2ecc71;
+    color: #ffffff;
 }
 
 QPushButton#dangerButton {
     background-color: #c0392b;
+    color: #ffffff;
     border: none;
 }
 
 QPushButton#dangerButton:hover {
     background-color: #e74c3c;
+    color: #ffffff;
+}
+
+QMessageBox QPushButton, QDialogButtonBox QPushButton {
+    background-color: #333648;
+    color: #ffffff;
+    border: 1px solid #3a3d4d;
+    border-radius: 6px;
+    padding: 6px 14px;
+    min-width: 72px;
+}
+
+QMessageBox QPushButton:hover, QDialogButtonBox QPushButton:hover {
+    background-color: #40465c;
+    color: #ffffff;
 }
 
 /* --------------------------- إدخال --------------------------- */

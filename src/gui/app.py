@@ -16,10 +16,9 @@ from PySide6.QtNetwork import QLocalServer, QLocalSocket
 from PySide6.QtWidgets import QApplication, QMessageBox
 
 from src.core.app_context import AppContext
-from src.gui.login_window import LoginWindow, first_run_wizard_required
+from src.gui.login_window import LoginWindow
 from src.gui.main_window import MainWindow, load_app_icon
-from src.gui.setup_wizard import run_setup_if_needed
-from src.gui.theme import dark_palette
+from src.gui.theme import dark_palette, stylesheet
 from src.utils.logger import install_excepthook, setup_logging
 from src.utils.paths import ensure_dirs, migrate_legacy_files
 from src.utils.winapi import (
@@ -89,11 +88,13 @@ class SingleInstance:
 
 
 def _configure_application(app: QApplication, language: str) -> None:
+    app.setStyle("Fusion")
     app.setApplicationName(APP_NAME)
     app.setApplicationVersion(APP_VERSION)
     app.setOrganizationName(APP_NAME)
     app.setWindowIcon(load_app_icon())
     app.setPalette(dark_palette())
+    app.setStyleSheet(stylesheet())
     if language == "ar":
         app.setLayoutDirection(Qt.RightToLeft)
 
@@ -152,11 +153,11 @@ def launch_app(argv: list[str] | None = None) -> int:
         ctx = AppContext()
         _configure_application(app, str((ctx.settings.get("appearance") or {}).get("language", "ar")))
 
-        # 3) الإعداد الأولي عند أول تشغيل
-        if first_run_wizard_required(ctx.settings):
-            if not run_setup_if_needed(ctx.settings, ctx.installer, ctx.protection):
-                logger.info("Setup cancelled by user; exiting.")
-                return 0
+        # 3) ضمان وجود حساب الأدمن الافتراضي تلقائياً بدون معالج إنشاء أدمن
+        try:
+            ctx.auth.ensure_default_admin()
+        except Exception as exc:
+            logger.warning("Could not ensure default admin: %s", exc)
 
         # 4) تسجيل الدخول + النافذة الرئيسية (مع دعم تسجيل الخروج وإعادة الدخول)
         while True:
