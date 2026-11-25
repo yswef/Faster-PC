@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-from datetime import datetime
 import html
+from datetime import datetime
 from typing import Iterable
 
 from PySide6.QtCore import QMarginsF, QSizeF
