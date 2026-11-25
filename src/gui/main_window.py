@@ -48,7 +48,6 @@ from PySide6.QtWidgets import (
 from src.core.app_catalog import get_process_info, get_service_info
 from src.core.app_context import AppContext
 from src.core.results import ActionResult
-from src.utils.pdf_report import export_pdf_report
 from src.gui.dialogs import (
     AboutDialog,
     ConfirmDialog,
@@ -61,6 +60,7 @@ from src.gui.theme import COLORS, stylesheet
 from src.gui.widgets import Card, SectionHeader, StatCard, ToastManager  # noqa: F401
 from src.utils.logger import UILogHandler, read_log_tail
 from src.utils.paths import human_size, logs_dir, resource_path
+from src.utils.pdf_report import export_pdf_report
 from src.utils.winapi import is_admin
 from src.version import APP_NAME, APP_VERSION
 
